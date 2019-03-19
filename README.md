@@ -1,15 +1,10 @@
 # Dropper
 
-**Simple WebSocket based event/data pusher that runs in your NodeJS/ExpressJS app.**
+**A simple WebSocket based event/data pusher that runs in your NodeJS/ExpressJS app.**
 
-----
-## What can I do with Dropper?
+Send and recive notifications, messages, updates and any data, in real-time with custom events and methods served on your own web, Dropper is Open Source, self-served and FREE forever!
 
-**Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for sending data between servers and clients, all in real-time.
-
-Our **Server and Client APIs** are designed to handle real-time data sent by your peers, you can work with our structured event methods that allows to handle send and receive data in a simpler way.. 
-
-######Someone said:
+###### Someone said:
 
 >"Easily build scalable realtime graphs, geotracking, multiplayer games, and more in your web and mobile apps with **our hosted pub/sub messaging API**."
 
@@ -17,33 +12,36 @@ Our **Server and Client APIs** are designed to handle real-time data sent by you
 
 >"Easily build scalable realtime aplications with **our Open Source self-hosted pub/sub messaging API."** 
 
-----
+## What can I do with Dropper?
 
-###Event methods:
+**Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for sending data between servers and clients, all in real-time.
+
+Our **Server and Client APIs** are designed to handle real-time data sent by your peers, you can work with our structured event methods that allows to handle, send and receive data in a simpler way.. 
+
+### Event methods:
 
 - **Socket**, is a **simplified but traditional way** to send and receive data through WebSocket, **based on customized events**. 
 
- You can listen and send events in real-time to run code as you need it, **on the client and server side**.
+   You can listen and send events in real-time to run code as you need it, **on the client and server side**.
 
- **client.js**
+    **client.js**
 
-        socket.emit("pizza", "I sent you a pizza!");
-        socket.on("thanks", function(data){
-          console.log(data) // => Hey mate thank you!
-        });
+      socket.emit("pizza", "I sent you a pizza!");
+      socket.on("thanks", function(data){
+        console.log(data) // => Hey mate thank you!
+      });
 
- **server.js**
+    **server.js**
 
-        sokcet.on("pizza", function(data){
-          console.log(data) // => I sent you a pizza!
-          socket.emit("thanks", "Hey mate thank you!");
-        });
+      sokcet.on("pizza", function(data){
+        console.log(data) // => I sent you a pizza!
+        socket.emit("thanks", "Hey mate thank you!");
+      });
 
-----
 
 - **Channels**, are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can send data in real-time just to listeners who need it.
 
- **client.js**
+    **client.js**
 
         var channel = dropper.subscribe('my-channel');
         channel.bind('my-event', function(data) {
@@ -51,7 +49,7 @@ Our **Server and Client APIs** are designed to handle real-time data sent by you
           and triggered by the my-event event*/
         });
 
- **server.js**
+    **server.js**
     
         pusher.trigger('my-channel', 'my-event', {
           "message": "Message sent from my-channel and triggered by the my-event event"
@@ -59,15 +57,15 @@ Our **Server and Client APIs** are designed to handle real-time data sent by you
 
 ---
 
-##Documents
+## Documents
 
-######Go to the [API section]("") to learn how to use **Dropper ** and its methods. With **Dropper** you can do what you want without paid  any third-party service.
+###### Go to the [API section]("") to learn how to use Dropper and its methods. With Dropper you can do what you want without any paid third-party service.
 
-##Credits
+## Credits
 
 Lead Developer - Denyn crawford (@samaels_bitch)
 
-##License
+## License
 
 The MIT License (MIT)
 
