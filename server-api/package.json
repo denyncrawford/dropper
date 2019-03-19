@@ -1,0 +1,22 @@
+{
+  "name": "bourze-pusher",
+  "version": "0.0.2",
+  "description": "Data Pusher",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "node index.js"
+  },
+  "author": "Denyn Crawford",
+  "license": "MIT",
+  "dependencies": {
+    "express-ws": "^4.0.0",
+    "nedb": "^1.8.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4"
+  }
+}
