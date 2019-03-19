@@ -19,17 +19,19 @@ function BPusher(config) {
   // Open ws connection
 
   var clients = {};
+  var ids = [];
   var gWs;
 
   server.ws('/socket', function(ws, req) {
     gWs = ws;
     ws.id = req.headers['sec-websocket-key'];
     var refID = ws.id;
+    ids.push(refID);
     clients[ws.id] = ws;
     var response = {event:"session", data:{connection:refID}};
     clients[refID].send(JSON.stringify(response));
     ws.on('message', function(msg) {
-      const ip = req.connection.remoteAddress;
+      em.emit("message", msg);
     });
     ws.on("close", function() {
       delete clients[ws.id];
@@ -92,7 +94,21 @@ function BPusher(config) {
 
   //WebSocket api
 
+  this.client = function() {
+    if (typeof gWs == "undefined") return "No conection detected, please execute this on events methods."
+    return gWs
+  }
+
+  this.client.id = function() {
+    if (typeof gWs == "undefined") return "No conection detected, please execute this on events methods."
+    return gWs.id
+  };
+
   this.clients = clients;
+
+  this.clients.ids = ids;
+
+  //Websocket main triggers
 
   this.emit = function(evt, data) {
     if (typeof gWs == "undefined") return
@@ -108,6 +124,39 @@ function BPusher(config) {
 
   this.close = function() {
     gWs.close()
+  }
+
+  this.client.emit = function(clientID, evt, data) {
+    if (typeof gWs == "undefined") return
+    if (typeof clientID == "undefined") return "Please, introduce a ClientID to send the event."
+
+    if (typeof data == "undefined") {
+      data = evt;
+      evt = null;
+      clients[clientID].send(JSON.stringify({message:data}));
+    }else {
+      clients[clientID].send(JSON.stringify({event:evt, message:data}));
+    }
+  }
+
+  //Websocket event Listeners
+
+  this.on = function(evt, cb) {
+    switch (evt) {
+      case "message":
+        em.on("message", function(msg) {
+          if (isJson(msg)) {
+            msg = JSON.parse(msg);
+          }
+          return cb(msg)
+        });
+        break;
+      case "close":
+
+        break;
+      default:
+
+    }
   }
 
   // Data pusher notifications
@@ -126,6 +175,18 @@ function BPusher(config) {
   this.test = function() {
     console.log("Bourze pusher is working!");
   }
+
+  // Utils
+
+  function isJson(str) {
+      try {
+          JSON.parse(str);
+      } catch (e) {
+          return false;
+      }
+      return true;
+  }
+
 }
 
 module.exports = BPusher;
