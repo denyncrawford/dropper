@@ -41,7 +41,7 @@ Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/
 
 - **Channels:**
 
-  Dropper Channels are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can push real-time messaging just to listeners who need it.
+  **Dropper Channels** are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can push real-time messaging just to listeners who need it.
 
     **client.js**
 
