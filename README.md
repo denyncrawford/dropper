@@ -45,16 +45,16 @@ Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/
 
     **client.js**
 
-        var channel = dropper.subscribe('pizza-store-channel');
-        channel.bind('pizza', function(myOrder) {
-          console.log(myOrder.state) // => Hello customer, your pizza is ready!
-        });
+      var channel = dropper.subscribe('pizza-store-channel');
+      channel.bind('pizza', function(myOrder) {
+        console.log(myOrder.state) // => Hello customer, your pizza is ready!
+      });
 
     **server.js**
 
-        dropper.trigger('pizza-store-channel', 'pizza', {
-          "state": "Hello customer, your pizza is ready!"
-        });
+      dropper.trigger('pizza-store-channel', 'pizza', {
+        "state": "Hello customer, your pizza is ready!"
+      });
 
 ---
 
