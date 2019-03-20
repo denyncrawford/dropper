@@ -12,6 +12,8 @@ Send and recive notifications, messages, updates and any data, all in real-time 
 
 >"Easily build scalable realtime aplications with **our Open Source self-hosted pub/sub messaging API."**
 
+###### With Dropper you can do what you want without any paid third-party service.
+
 ## What can I do with Dropper?
 
 Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for delivering messages between servers and clients in real-time, our **Side by Side APIs** are designed to handle custom events sent by your aplication peers, you can work with our structured event hadlelers that allows to send and receive data in a simpler and contolated way.
@@ -60,7 +62,7 @@ Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/
 
 ## Documents
 
-###### Go to the [API section]("") to learn how to use Dropper and its methods. With Dropper you can do what you want without any paid third-party service.
+###### Go to the [API section]("") to learn how to use Dropper and its methods.
 
 ## Credits
 
