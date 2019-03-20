@@ -2,9 +2,9 @@
 
 **A simple WebSocket based event/data pusher that runs in your NodeJS/ExpressJS app.**
 
-Send and recive notifications, messages, updates and any data, in real-time with custom events and methods served on your own web, Dropper is Open Source, self-served and FREE forever!
+Send and recive notifications, messages, updates and any data, all in real-time with custom events and methods served on your own web, Dropper is Open Source, self-served and FREE forever!
 
-###### Someone said:
+###### The counterpart says:
 
 >"Easily build scalable realtime graphs, geotracking, multiplayer games, and more in your web and mobile apps with **our hosted pub/sub messaging API**."
 
@@ -14,13 +14,13 @@ Send and recive notifications, messages, updates and any data, in real-time with
 
 ## What can I do with Dropper?
 
-**Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for sending data between servers and clients, all in real-time.
-
-Our **Server and Client APIs** are designed to handle real-time data sent by your peers, you can work with our structured event methods that allows to handle, send and receive data in a simpler way..
+Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for delivering messages between servers and clients in real-time, our **Side by Side APIs** are designed to handle custom events sent by your aplication peers, you can work with our structured event hadlelers that allows to send and receive data in a simpler and contolated way.
 
 ### Event methods:
 
-- **Socket**, by default **Dropper** returns a socket instance, this is a **simplified but traditional way** to send and receive data through WebSocket, **based on customized events**. 
+- **Socket:**
+
+  **Dropper** by default returns an instance of WebSocket, which is a simplified but traditional way to deliver messaging with a very similar structure **WS API for Browsers like**, but based on custom events.
 
    You can listen and send events in real-time to run code as you need it, **on the client and server side**.
 
@@ -39,20 +39,21 @@ Our **Server and Client APIs** are designed to handle real-time data sent by you
       });
 
 
-- **Channels**, are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can send data in real-time just to listeners who need it.
+- **Channels**:
+
+  Dropper Channels are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can push real-time messaging just to listeners who need it.
 
     **client.js**
 
-        var channel = dropper.subscribe('my-channel');
-        channel.bind('my-event', function(data) {
-          console.log(data.message) /* => Message sent from my-channel
-          and triggered by the my-event event*/
+        var channel = dropper.subscribe('pizza-store-channel');
+        channel.bind('pizza', function(myOrder) {
+          console.log(myOrder.state) // => Hello customer, your pizza is ready!
         });
 
     **server.js**
 
-        pusher.trigger('my-channel', 'my-event', {
-          "message": "Message sent from my-channel and triggered by the my-event event"
+        dropper.trigger('pizza-store-channel', 'pizza', {
+          "state": "Hello customer, your pizza is ready!"
         });
 
 ---
