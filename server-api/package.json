@@ -1,12 +1,22 @@
 {
-  "name": "bourze-pusher",
-  "version": "0.0.2",
-  "description": "Data Pusher",
+  "name": "dropper-live",
+  "version": "0.0.1",
+  "description": "Real-time data pusher",
   "main": "index.js",
   "scripts": {
     "test": "node test.js",
     "start": "node index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/crawford_org/dropper.git"
+  },
+  "keywords": [
+    "websocket",
+    "real-time",
+    "pusher",
+    "socket"
+  ],
   "author": "Denyn Crawford",
   "license": "MIT",
   "dependencies": {

@@ -1,6 +1,6 @@
 //Global Function
 
-function BPusher(config) {
+function Dropper(config) {
 
   var username = config.username,
   app = config.appName,
@@ -56,7 +56,7 @@ function BPusher(config) {
       var keys = Object.keys(newUserModel);
       for (var i = 0; i < keys.length; i++) {
         if (newUserModel[keys[i]] == null && newUserModel[keys[i]] == undefined) {
-          throw "Seem like you're missconfigurating the "+keys[i]+" value in your BPusher instance."
+          throw "Seem like you're missconfigurating the "+keys[i]+" value in your Dropper instance."
         }
       }
       db.insert(newUserModel, function(err, newdoc) {
@@ -189,4 +189,4 @@ function BPusher(config) {
 
 }
 
-module.exports = BPusher;
+module.exports = Dropper;
