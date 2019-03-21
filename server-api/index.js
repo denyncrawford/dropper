@@ -6,23 +6,26 @@ function Dropper(config) {
   app = config.appName,
   pass = config.password
   server = config.server,
-  encriptionKey = config.encription;
+  encriptionKey = config.encription,
+  appRoute = config.appRoute;
 
   const events = require('events');
+  const express = require('express');
   const em = new events.EventEmitter();
   const uuid = require('uuid/v1');
   const fs = require('fs');
+  const pug = require('pug');
   const Datastore = require('nedb');
   const db = new Datastore({ filename: './store/datastore.json', autoload: true });
-  var expressWs = require('express-ws')(server);
+  const expressWs = require('express-ws')(server);
 
-  // Open ws connection
+  // Open Websocket connection
 
   var clients = {};
   var ids = [];
   var gWs;
 
-  server.ws('/socket', function(ws, req) {
+  server.ws(appRoute, function(ws, req) {
     gWs = ws;
     ws.id = req.headers['sec-websocket-key'];
     var refID = ws.id;
@@ -71,6 +74,20 @@ function Dropper(config) {
         });
       }
     }
+  });
+
+  //Expected Console Connectios
+
+  var clientRoute = appRoute + "/console"
+  const index = pug.compileFile('./lib/console/index.pug');
+
+  server.use(clientRoute, express.static(__dirname + '/lib/console/public'))
+
+  server.get(clientRoute, function(req, res) {
+    res.send(index({
+      title: "Dropper Web Console - " + app,
+      appname: app
+    }))
   });
 
   // Constructor operational functions
