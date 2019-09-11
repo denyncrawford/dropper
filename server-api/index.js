@@ -18,6 +18,7 @@ function Dropper(config) {
   const Datastore = require('nedb');
   const db = new Datastore({ filename: './store/datastore.json', autoload: true });
   const expressWs = require('express-ws')(server);
+  const xterm = require('xterm');
 
   // Open Websocket connection
 
@@ -81,7 +82,7 @@ function Dropper(config) {
   var clientRoute = appRoute + "/console"
   const index = pug.compileFile('./lib/console/index.pug');
 
-  server.use(clientRoute, express.static(__dirname + '/lib/console/public'))
+  server.use(clientRoute, express.static(__dirname + '/lib/console/public'));
 
   server.get(clientRoute, function(req, res) {
     res.send(index({

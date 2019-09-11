@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto');
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto|Ubuntu');
 
 * {
   margin: 0;
@@ -86,6 +86,7 @@ nav.coll-menu .button-container button .title {
   visibility: hidden;
   opacity: 0;
   cursor: default;
+  z-index: 1;
 }
 
 nav.coll-menu .button-container button .title p {
@@ -94,15 +95,15 @@ nav.coll-menu .button-container button .title p {
 
 nav.coll-menu .button-container button:hover > .title {
   left: 130%;
-  visibility: visible;
-  opacity: 1;
+  visibility: visible!important;
+  opacity: 1!important;
   transition: .2s;
 }
 
 nav.coll-menu .button-container button .title:hover {
   left: 100%;
-  visibility: hidden;
-  opacity: 0;
+  visibility: hidden!important;
+  opacity: 0!important;
 }
 
 button[disabled] {
@@ -119,7 +120,15 @@ nav .button-container button:hover > i {
   color: #ff503f;
 }
 
+nav .button-container button.active i {
+  color: #ff503f;
+}
+
 /*Expanded Navigation*/
+
+nav.expn-menu .button-container button.active > .title {
+  color: #ff503f;
+}
 
 nav.expn-menu .button-container button{
   text-align: left;
@@ -159,4 +168,32 @@ nav.expn-menu .button-container button:hover > .title {
 #main-sandbox {
   flex: 1;
   background-color: #edeef1;
+  position: relative;
+  display: flex;
+}
+
+#main-sandbox .sectionCanvas {
+  height: 100%;
+  width: calc(100% - 140px);
+  padding: 0 70px;
+  position: absolute;
+  left: -100px;
+  display: none;
+}
+
+#main-sandbox .sectionCanvas h1 {
+  font-family: "Ubuntu", sans-serif;
+  letter-spacing: 1px;
+  margin-top: 60px;
+  color: rgb(41, 47, 54);
+  font-size: 20px;
+}
+
+#main-sandbox .sectionCanvas.active {
+  display: block;
+  left: 0px;
+}
+
+#main-sandbox #terminal {
+  background-color: rgb(50, 52, 52);
 }

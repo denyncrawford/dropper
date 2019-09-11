@@ -23,7 +23,8 @@
     "express-ws": "^4.0.0",
     "nedb": "^1.8.0",
     "pug": "^2.0.3",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xterm": "^3.12.0"
   },
   "devDependencies": {
     "body-parser": "^1.18.3",
