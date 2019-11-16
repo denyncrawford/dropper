@@ -3,7 +3,7 @@ function Dropper(config) {
   var username = config.username,
   app = config.appName,
   pass = config.password,
-  auth = config.secret,
+  auth = config.apiKey,
   connection = config.connect,
   path = connection.path || "/dropper",
   logs = config.logs || false;
