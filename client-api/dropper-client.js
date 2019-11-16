@@ -8,7 +8,7 @@ function Dropper(config) {
   path = connection.path || "/dropper",
   logs = config.logs || false;
 
-  var socket = new WebSocket("ws://"+conection.domain+path);
+  var socket = new WebSocket("ws://"+connection.domain+path);
 
   var em = new EventEmitter();
 

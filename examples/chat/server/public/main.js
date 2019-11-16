@@ -3,8 +3,8 @@
 var dropper = new Dropper({
   appName: "my-dropper",
   auth: "788caa30-2226-4957-9dec-7c3ae5fbd479",
-  conection: {
-    conect: "localhost:3000"
+  connect: {
+    domain: "192.168.0.249:3000"
   }
 });
 
