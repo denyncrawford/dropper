@@ -12,7 +12,7 @@ function Dropper(config) {
 
   var em = new EventEmitter();
 
-  fetch("http://"+conection.domain+path, {
+  fetch("http://"+connection.domain+path, {
     method: "GET",
     headers: {
       "Authorization": auth,
