@@ -18,7 +18,7 @@ app.get("/", function(req, res) {
 })
 
 dropper.on("appendMS", function(data) {
-  console.log(data);
+  dopper.emit("respone", data.message)
 })
 
 app.listen(3000)

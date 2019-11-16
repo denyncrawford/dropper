@@ -20,7 +20,7 @@ $("#mainText").on("keypress", function(e) {
   var cookie = Cookies.get("login")
   if (e.code == "Enter" && value.length != 0 ) {
     console.log(cookie);
-    var appenn = new AppendMS({
+    var append = new AppendMS({
       message: value,
       date: moment().format("DDMMYYYh:mm:ss"),
       peer: cookie
@@ -34,7 +34,10 @@ function AppendMS(params) {
   date = params.date,
   peer = params.peer,
   relative = moment(date, "DDMMYYYh:mm:sss").fromNow();
-  socket.emit("appendMS", message);
+  socket.emit("appendMS", params);
+  socket.on("respone", function(data) {
+    console.log(data);
+  })
   var box = $(".mainScroll");
   var last = $(".messageGroup").last();
   if (last.hasClass("me") && last.hasClass(peer)) {

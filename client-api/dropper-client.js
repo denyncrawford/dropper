@@ -9,8 +9,8 @@ function Dropper(config) {
   logs = config.logs || false;
 
   if (path[0] != "/") path = "/"+ path;
-  if (!apiKey || apiKey.length == 0) {
-    console.error("Please provide any apiKey in the options to secure the Droppet instance");
+  if (!auth || auth.length == 0) {
+    console.error("Please provide any apiKey in the options to connect the Droppet instance");
     return
   }
 
