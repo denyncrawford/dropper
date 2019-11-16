@@ -37,7 +37,7 @@ The Dropper instance is designed to return two different work modalities, which 
 
     **server.js**
 
-      drpper.on("pizza", function(data){
+      dropper.on("pizza", function(data){
         console.log(data) // => I sent you a pizza!
         dropper.emit("thanks", "Hey mate thank you!");
       });
@@ -52,6 +52,7 @@ The Dropper instance is designed to return two different work modalities, which 
     **client.js**
 
       var channel = dropper.subscribe('pizza-store-channel');
+
       channel.bind('pizza', function(myOrder) {
         console.log(myOrder.state) // => Hello customer, your pizza is ready!
       });
