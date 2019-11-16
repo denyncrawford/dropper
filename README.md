@@ -12,7 +12,7 @@ Send and recive notifications, messages, updates and any data, all in real-time 
 
 >"Easily build scalable realtime aplications with **our Open Source self-hosted pub/sub messaging API."**
 
-###### With Dropper you can do what you want without any paid third-party service.
+With Dropper you can do what you want without any paid third-party service.
 
 ## What can I do with Dropper?
 
@@ -64,6 +64,39 @@ The Dropper instance is designed to return two different work modalities, which 
       });
 
 ---
+
+###Features
+
+Dropper enables real-time bidirectional event-based communication. It consists of:
+
+- a Node.js server.
+- a Javascript client library for the browser (or a Node.js client)
+
+- Protocol
+
+We are constantly developing for improvements and delivering more features to make Dropper a totally reliable tool.
+
+For now it is a WebSocket-based tool with connections secured by a handshake authenticated with an initial http request, but we are currently working on a more advanced protocol that has side-by-side encryption.
+
+- Simple API
+
+Dropper has a very easy to use API, both the server and the client are practically identical.
+
+- Channels
+
+In order to developing scalable applications Dropper has dedicated spaces called "channels" which exists to broadcast information separate from the global scope of your dropper instance.
+
+Of course there may be different instances of Dropper in a single application but this means that for each instance / app, you have the possibility to dispatch events in separate spaces without affecting the functionality of other channels.
+
+##Installation
+
+#####NodeJS
+
+>npm install dropperjs
+
+#####Client
+
+> <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></cript>
 
 ## Documents
 
