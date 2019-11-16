@@ -47,10 +47,13 @@ function Dropper(config) {
         break;
       default:
         socket.onmessage = function(res) {
-          var data = JSON.parse(res.data);
+          console.log(isJson(res.data));
+          if (isJson(res.data)) {
+            data = JSON.parse(res.data);
+          }
           if (!data.event) return cb("Not event detected, try the default 'message' event to read raw data.")
           if (evt == data.event) {
-            return cb(data)
+            return cb(data.message, data)
           }
         }
     }

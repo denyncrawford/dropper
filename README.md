@@ -18,32 +18,36 @@ Send and recive notifications, messages, updates and any data, all in real-time 
 
 Since **Dropper** is a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) solution for delivering messages between servers and clients in real-time, our **Side by Side APIs** are designed to handle custom events sent by your aplication peers, you can work with our structured event hadlelers that allows to send and receive data in a simpler and contolated way.
 
-### Event methods:
+### Dropper instance:
+
+The Dropper instance is designed to return two different work modalities, which allows you to code projects of different scales and purposes.
 
 - **Socket:**
 
-  **Dropper** by default returns an instance of WebSocket, which is a simplified but traditional way to deliver messaging with a very similar structure **WS API for Browsers like**, but based on custom events.
+  By default **Dropper** returns an instance of WebSocket, which is a simplified but traditional way to deliver messaging with a very similar structure **WS API for Browsers like**, but based on custom events.
 
    You can listen and send events in real-time to run code as you need it, **on the client and server side**.
 
     **client.js**
 
-      socket.emit("pizza", "I sent you a pizza!");
-      socket.on("thanks", function(data){
+      dropper.emit("pizza", "I sent you a pizza!");
+      dropper.on("thanks", function(data){
         console.log(data) // => Hey mate thank you!
       });
 
     **server.js**
 
-      sokcet.on("pizza", function(data){
+      drpper.on("pizza", function(data){
         console.log(data) // => I sent you a pizza!
-        socket.emit("thanks", "Hey mate thank you!");
+        dropper.emit("thanks", "Hey mate thank you!");
       });
 
 
 - **Channels:**
 
-  **Dropper Channels** are dedicated spaces to **listen and send data to specific users** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology, in this way you can push real-time messaging just to listeners who need it.
+  **Dropper Channels** are dedicated spaces to **listen and send data to specific peers** who are subscribed to them, the channels are designed to **communicate more easily between peers** in **a personalized space** with the same WebSocket techonology.
+
+  In this way you can push **real-time** data/messaging to different instances in your application, just to listeners who need it, without any problem of repeated events in the same instance or mixed listeners who should not listen to the event being emitted.
 
     **client.js**
 

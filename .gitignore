@@ -1,4 +1,4 @@
-server-api/node_modules/
+node_modules/
 *test.js
 *clientTest.js
 *.html
