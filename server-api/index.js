@@ -7,7 +7,8 @@ function Dropper(server) {
     pass = config.password
     server = server || config.server,
     apiKey = config.apiKey,
-    appRoute = config.appRoute || "dropper";
+    appRoute = config.appRoute || "dropper",
+    logs = config.logs || false;
 
     const events = require('events');
     const express = require('express');
@@ -59,7 +60,7 @@ function Dropper(server) {
 
     // Find User/Instance
 
-    db.find({username:username}, function(err, doc) {
+    /*db.find({username:username}, function(err, doc) {
       if (err) throw err;
       if (doc.length > 1) {
         throw "User already taken, take another username to this new instance.";
@@ -91,7 +92,7 @@ function Dropper(server) {
         }
       }
     });
-
+*/
     //Expected Console Connectios
 
     var clientRoute = appRoute + "/console"
@@ -105,25 +106,6 @@ function Dropper(server) {
         appname: app
       }))
     });
-
-    // Constructor operational functions
-
-    this.authenticate = function (req, res, done) {
-      var username = req.headers.username;
-      var password = req.headers.password;
-      db.find({username:username}, function(err, doc) {
-        if (err) {
-          res.send(err);
-          return;
-        }
-        doc = doc[0];
-        if (doc && doc.password === password) {
-          return done();
-        }else{
-          res.status(401).send("Wrong authentication credentials.");
-        }
-      })
-    }
 
     //WebSocket api
 

@@ -4,6 +4,12 @@
 
 Send and recive notifications, messages, updates and any data, all in real-time with custom events and methods served on your own web, Dropper is Open Source, self-served and FREE forever!
 
+[![](https://data.jsdelivr.com/v1/package/npm/dropperjs/badge)](https://www.jsdelivr.com/package/npm/dropperjs) ![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2Fdenyncrawford%2Fdropper)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/denyncrawford/dropper/blob/master/LICENSE?style=flat-square)
+![npm](https://img.shields.io/npm/v/dropperjs?color=green&label=version&style=flat-square)
+![npm](https://img.shields.io/npm/dm/dropper?color=blue&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/denyncrawford/dropper?style=flat-square)
+
 ###### The counterpart says:
 
 >"Easily build scalable realtime graphs, geotracking, multiplayer games, and more in your web and mobile apps with **our hosted pub/sub messaging API**."

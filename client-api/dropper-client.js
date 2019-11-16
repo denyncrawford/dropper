@@ -5,7 +5,8 @@ function Dropper(config) {
   pass = config.password,
   auth = config.secret,
   conection = config.conect,
-  path = conection.path || "/dropper"
+  path = conection.path || "/dropper",
+  logs = config.logs || false;
 
   var socket = new WebSocket("ws://"+conection.domain+path);
 
