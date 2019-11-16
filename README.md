@@ -64,8 +64,7 @@ The Dropper instance is designed to return two different work modalities, which 
       });
 
 ---
-
-###Features
+### Features
 
 Dropper enables real-time bidirectional event-based communication. It consists of:
 
@@ -88,15 +87,15 @@ In order to developing scalable applications Dropper has dedicated spaces called
 
 Of course there may be different instances of Dropper in a single application but this means that for each instance / app, you have the possibility to dispatch events in separate spaces without affecting the functionality of other channels.
 
-##Installation
+## Installation
 
-#####NodeJS
+##### NodeJS
 
->npm install dropperjs
+    npm install dropperjs
 
-#####Client
+##### Client
 
-> <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></cript>
+    <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></cript>
 
 ## Documents
 
