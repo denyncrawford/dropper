@@ -6,7 +6,7 @@ function Dropper(server) {
     app = config.appName,
     pass = config.password
     server = server || config.server,
-    encriptionKey = config.encription,
+    apiKey = config.apiKey,
     appRoute = config.appRoute || "dropper";
 
     const events = require('events');
@@ -26,6 +26,16 @@ function Dropper(server) {
     var ids = [];
     var gWs;
     var aWss = expressWs.getWss(appRoute);
+
+    server.get(appRoute, function(req, res) {
+      var auth = req.get("Authorization");
+      if (auth != apiKey) {
+        gWs.close();
+        res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
+      }else {
+        res.send(JSON.stringify({message:"Success connection.",bool:true}))
+      }
+    })
 
     server.ws(appRoute, function(ws, req) {
       gWs = ws;
@@ -175,6 +185,7 @@ function Dropper(server) {
             if (isJson(msg)) {
               msg = JSON.parse(msg);
             }
+            if (msg.channel) return;
             return cb(msg)
           });
           break;
@@ -188,6 +199,7 @@ function Dropper(server) {
             if (isJson(msg)) {
               msg = JSON.parse(msg);
             }
+            if (msg.channel) return;
             if (msg.event == evt) return cb(msg)
             return;
           });
@@ -197,15 +209,37 @@ function Dropper(server) {
 
     // Data pusher notifications
 
-    this.trigger = function(channel, bEvent, data) {
-      var route = "apps."+app+".channels."+channel;
-      gWs.send("Sended from Global")
-      db.update({username: username}, {$set:{[route]: data}}, {}, function(err, doc) {
-        if (err) {
-          console.log(err);
-        }
-        console.log("New "+bEvent+" event was triggered into "+channel+".");
-      });
+    this.subscribe = function(channelName) {
+      var bind = function (evt, cb) {
+        em.on("message", function(msg) {
+          if (isJson(msg)) {
+            msg = JSON.parse(msg);
+          }
+          if (!msg.channel) return;
+          if (msg.channel != channelName) return;
+          if (msg.event == evt) return cb(msg.message)
+          return;
+        })
+      }
+      return {
+        bind: bind
+      }
+    }
+
+    this.trigger = function(channel, evt, data) {
+      if (typeof gWs == "undefined") return
+      if (typeof channel == "undefined") return console.log("Please provide a channel to use the trigger method.");
+      if (typeof data == "undefined") {
+        data = evt;
+        evt = null;
+        aWss.clients.forEach((client) => {
+          client.send(JSON.stringify({channel:channel, message:data}));
+        });
+      }else {
+        aWss.clients.forEach((client) => {
+          client.send(JSON.stringify({channel: channel, event:evt, message:data}));
+        });
+      }
     }
 
     this.test = function() {

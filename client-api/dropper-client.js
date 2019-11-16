@@ -3,10 +3,26 @@ function Dropper(config) {
   var username = config.username,
   app = config.appName,
   pass = config.password,
-  encription = config.secret,
-  conection = config.conect
+  auth = config.secret,
+  conection = config.conect,
+  path = conection.path || "/dropper"
 
-  var socket = new WebSocket("ws://"+conection.domain+conection.path, encription);
+  var socket = new WebSocket("ws://"+conection.domain+path);
+
+  var em = new EventEmitter();
+
+  fetch("http://"+conection.domain+path, {
+    method: "GET",
+    headers: {
+      "Authorization": auth,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => res.json())
+  .then(pass => {
+    if (!pass.bool) socket.close();
+    console.log(pass.message);
+  });
 
   // RAW socket functions
 
@@ -37,6 +53,8 @@ function Dropper(config) {
           if (isJson(res.data)) {
             data = JSON.parse(res.data);
           }
+          em.emit("message", data)
+          if (data.channel) return;
           return cb(data)
         }
         break;
@@ -47,17 +65,47 @@ function Dropper(config) {
         break;
       default:
         socket.onmessage = function(res) {
-          console.log(isJson(res.data));
           if (isJson(res.data)) {
             data = JSON.parse(res.data);
           }
           if (!data.event) return cb("Not event detected, try the default 'message' event to read raw data.")
           if (evt == data.event) {
+            em.emit("message", data)
+            if (data.channel) return;
             return cb(data.message, data)
           }
         }
     }
   }
+
+  this.subscribe = function(channelName) {
+    var bind = function (evt, cb) {
+      em.on("message", function(msg) {
+        if (isJson(msg)) {
+          msg = JSON.parse(msg);
+        }
+        if (!msg.channel) return;
+        if (msg.channel != channelName) return;
+        if (msg.event == evt) return cb(msg.message)
+        return;
+      })
+    }
+    return {
+      bind: bind
+    }
+  }
+
+  this.trigger = function(channel, evt, data) {
+    if (typeof channel == "undefined") return console.log("Please provide a channel to use the trigger method.");
+    if (typeof data == "undefined") {
+      data = evt;
+      evt = null;
+      socket.send(JSON.stringify({channel:channel, message:data}));
+    }else {
+      socket.send(JSON.stringify({channel: channel, event:evt, message:data}));
+    }
+  }
+  //-------
 }
 
 // Utils
@@ -70,3 +118,74 @@ function isJson(str) {
     }
     return true;
 }
+
+/* Polyfill indexOf. */
+var indexOf;
+
+if (typeof Array.prototype.indexOf === 'function') {
+    indexOf = function (haystack, needle) {
+        return haystack.indexOf(needle);
+    };
+} else {
+    indexOf = function (haystack, needle) {
+        var i = 0, length = haystack.length, idx = -1, found = false;
+
+        while (i < length && !found) {
+            if (haystack[i] === needle) {
+                idx = i;
+                found = true;
+            }
+
+            i++;
+        }
+
+        return idx;
+    };
+};
+
+
+/* Polyfill EventEmitter. */
+
+var EventEmitter = function () {
+    this.events = {};
+};
+
+EventEmitter.prototype.on = function (event, listener) {
+    if (typeof this.events[event] !== 'object') {
+        this.events[event] = [];
+    }
+
+    this.events[event].push(listener);
+};
+
+EventEmitter.prototype.removeListener = function (event, listener) {
+    var idx;
+
+    if (typeof this.events[event] === 'object') {
+        idx = indexOf(this.events[event], listener);
+
+        if (idx > -1) {
+            this.events[event].splice(idx, 1);
+        }
+    }
+};
+
+EventEmitter.prototype.emit = function (event) {
+    var i, listeners, length, args = [].slice.call(arguments, 1);
+
+    if (typeof this.events[event] === 'object') {
+        listeners = this.events[event].slice();
+        length = listeners.length;
+
+        for (i = 0; i < length; i++) {
+            listeners[i].apply(this, args);
+        }
+    }
+};
+
+EventEmitter.prototype.once = function (event, listener) {
+    this.on(event, function g () {
+        this.removeListener(event, g);
+        listener.apply(this, arguments);
+    });
+};
