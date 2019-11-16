@@ -7,8 +7,14 @@ function Dropper(server) {
     pass = config.password
     server = server || config.server,
     apiKey = config.apiKey,
-    appRoute = config.appRoute || "dropper",
+    appRoute = config.appRoute || "/dropper",
     logs = config.logs || false;
+
+    if (appRoute[0] != "/") appRoute = "/"+ appRoute;
+    if (!apiKey || apiKey.length == 0) {
+      console.error("Please provide any apiKey in the options to secure the Droppet instance");
+      return
+    }
 
     const events = require('events');
     const express = require('express');

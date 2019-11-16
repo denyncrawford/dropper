@@ -8,6 +8,12 @@ function Dropper(config) {
   path = connection.path || "/dropper",
   logs = config.logs || false;
 
+  if (path[0] != "/") path = "/"+ path;
+  if (!apiKey || apiKey.length == 0) {
+    console.error("Please provide any apiKey in the options to secure the Droppet instance");
+    return
+  }
+
   var socket = new WebSocket("ws://"+connection.domain+path);
 
   var em = new EventEmitter();

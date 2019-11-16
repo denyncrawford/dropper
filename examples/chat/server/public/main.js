@@ -1,8 +1,8 @@
 // Login
 
-var dropper = new Dropper({
+var socket = new Dropper({
   appName: "my-dropper",
-  auth: "788caa30-2226-4957-9dec-7c3ae5fbd479",
+  apiKey: "788caa30-2226-4957-9dec-7c3ae5fbd479",
   connect: {
     domain: "192.168.0.249:3000"
   }

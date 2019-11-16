@@ -6,8 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const dropper = new Dropper({
   appName: "my-dropper",
-  apiKey: "788caa30-2226-4957-9dec-7c3ae5fbd479",
-  appRoute: "/socket"
+  apiKey: "788caa30-2226-4957-9dec-7c3ae5fbd479"
 });
 
 app.use(express.static('public'));
