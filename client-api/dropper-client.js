@@ -4,8 +4,8 @@ function Dropper(config) {
   app = config.appName,
   pass = config.password,
   auth = config.secret,
-  conection = config.conect,
-  path = conection.path || "/dropper",
+  connection = config.connect,
+  path = connection.path || "/dropper",
   logs = config.logs || false;
 
   var socket = new WebSocket("ws://"+conection.domain+path);

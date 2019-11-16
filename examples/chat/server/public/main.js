@@ -1,5 +1,13 @@
 // Login
 
+var dropper = new Dropper({
+  appName: "my-dropper",
+  auth: "788caa30-2226-4957-9dec-7c3ae5fbd479",
+  conection: {
+    conect: "localhost:3000"
+  }
+});
+
 $(document).ready(function() {
   var cookie = Cookies.get("login");
   if (cookie == undefined || cookie == null) {
@@ -26,7 +34,7 @@ function AppendMS(params) {
   date = params.date,
   peer = params.peer,
   relative = moment(date, "DDMMYYYh:mm:sss").fromNow();
-
+  socket.emit("appendMS", message);
   var box = $(".mainScroll");
   var last = $(".messageGroup").last();
   if (last.hasClass("me") && last.hasClass(peer)) {

@@ -96,7 +96,7 @@ function Dropper(server) {
     //Expected Console Connectios
 
     var clientRoute = appRoute + "/console"
-    const index = pug.compileFile('./lib/console/index.pug');
+    const index = pug.compileFile(__dirname +'/lib/console/index.pug');
 
     server.use(clientRoute, express.static(__dirname + '/lib/console/public'));
 

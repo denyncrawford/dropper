@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node index.js"
   },
   "author": "dcc",
   "license": "ISC",
   "dependencies": {
+    "dropperjs": "0.0.6",
     "express": "^4.17.1"
   }
 }
