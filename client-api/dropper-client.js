@@ -36,6 +36,12 @@ function Dropper(config) {
   }
   });
 
+  // Events
+
+  socket.onmessage = (res) => {
+    em.emit("message", res.data);
+  }
+
   // RAW socket functions
 
   this.emit = function(thisEvent, thisMessage) {
@@ -60,15 +66,13 @@ function Dropper(config) {
         }
         break;
       case "message":
-        socket.onmessage = function(res) {
-          var data = res.data;
-          if (isJson(res.data)) {
-            data = JSON.parse(res.data);
+        em.on("message", function(data) {
+          if (isJson(data)) {
+            data = JSON.parse(data);
           }
-          em.emit("message", data)
           if (data.channel) return;
-          return cb(data)
-        }
+          return cb(data);
+        })
         break;
       case "close":
         socket.onclose = function(res) {
@@ -76,17 +80,16 @@ function Dropper(config) {
         }
         break;
       default:
-        socket.onmessage = function(res) {
-          if (isJson(res.data)) {
-            data = JSON.parse(res.data);
+        em.on ("message", function(data) {
+          if (isJson(data)) {
+            data = JSON.parse(data);
           }
           if (!data.event) return cb("Not event detected, try the default 'message' event to read raw data.")
           if (evt == data.event) {
-            em.emit("message", data)
             if (data.channel) return;
             return cb(data.message, data)
           }
-        }
+        })
     }
   }
 

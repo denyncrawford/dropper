@@ -153,8 +153,6 @@ function Dropper(server) {
     //Websocket main triggers
 
     this.emit = function(evt, data) {
-      if (typeof gWs == "undefined") return
-
       if (typeof data == "undefined") {
         data = evt;
         evt = null;

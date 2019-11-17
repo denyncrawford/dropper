@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
-const Dropper = require('dropperjs')(app);
+const path = require('path');
+const Dropper = require(dropperjs)(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 const dropper = new Dropper({
   appName: "my-dropper",
   apiKey: "788caa30-2226-4957-9dec-7c3ae5fbd479"
@@ -18,8 +18,11 @@ app.get("/", function(req, res) {
 })
 
 dropper.on("sendMS", function(data) {
-  console.log(dropper.clients.ids);
   dropper.emit("sended", data.message)
-})
+});
+
+dropper.on("typing", function(data) {
+  dropper.emit("typing", data.message)
+});
 
 app.listen(3000)

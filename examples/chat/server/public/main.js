@@ -15,6 +15,26 @@ $(document).ready(function() {
   }
 });
 
+var stopTyping;
+var gCookie = Cookies.get("login");
+var typing = false;
+
+$("#mainText").on("keydown", () => {
+  if (!typing) {
+    socket.emit("typing", {peer:gCookie, state:true});
+    typing = true;
+  }
+  clearTimeout(stopTyping);
+});
+
+$("#mainText").on("keyup", () => {
+  clearTimeout(stopTyping);
+  stopTyping = setTimeout(() => {
+    typing = false;
+    socket.emit("typing", {peer:gCookie, state:false});
+  },2000)
+});
+
 $("#mainText").on("keypress", function(e) {
   var value = $(this).val();
   var cookie = Cookies.get("login")
@@ -26,8 +46,14 @@ $("#mainText").on("keypress", function(e) {
       peer: cookie
     })
     $(this).val("");
+    clearTimeout(stopTyping);
+    socket.emit("typing", {peer:cookie, state:false});
   }
 });
+
+socket.on("typing", function(data) {
+  console.log(data);
+})
 
 function SendMS(params) {
   var message = params.message,
@@ -37,10 +63,17 @@ function SendMS(params) {
   socket.emit("sendMS", params);
 }
 
+var title = document.querySelector("title");
+var originalText = title.innerHTML;
+var notSeen = 0;
+var notif = document.getElementById("notif");
+
 socket.on("sended", function(data) {
   var cookie = Cookies.get("login");
-  if (!isInWindow()) {
-    var notif = document.getElementById("notif");
+  var focused = document.hasFocus();
+  if (!focused) {
+    notSeen++
+    title.innerHTML = originalText + " - " + notSeen + " new messages."
     notif.pause();
     notif.currentTime = 0;
     notif.play();
@@ -64,6 +97,11 @@ socket.on("sended", function(data) {
       $(".chatview").scrollTop(box.height());
     }
   }
+});
+
+$(window).focus(function() {
+  title.innerHTML = originalText;
+  notSeen = 0;
 });
 
 function isInWindow() {
