@@ -99,9 +99,18 @@ Of course there may be different instances of Dropper in a single application bu
 
     npm install dropperjs
 
-##### Client
+##### Client / Browser
 
-    <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></script>
+-  **JsDelivr**
+
+
+        <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></script>
+
+
+- **RawGitHack**
+
+
+        <script src="https://raw.githack.com/denyncrawford/dropper/master/client-api/dropper-client.js" charset="utf-8"></script>
 
 ## Documents
 

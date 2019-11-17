@@ -8,7 +8,8 @@ function Dropper(server) {
     server = server || config.server,
     apiKey = config.apiKey,
     appRoute = config.appRoute || "/dropper",
-    logs = config.logs || false;
+    logs = config.logs || false,
+    secure = config.secure || false;
 
     if (appRoute[0] != "/") appRoute = "/"+ appRoute;
     if (!apiKey || apiKey.length == 0) {
@@ -33,16 +34,24 @@ function Dropper(server) {
     var ids = [];
     var gWs;
     var aWss = expressWs.getWss(appRoute);
+    var sign = false;
 
-    server.get(appRoute, function(req, res) {
+    server.get(appRoute, function(req, res, next) {
       var auth = req.get("Authorization");
+      var checkProtocol = req.connection.encrypted;
+      if (secure && !checkProtocol) {
+        gWs.close()
+        res.send(JSON.stringify({message:"Set the the secure option to false to allow not seccure connections.",bool:false}))
+        return next();
+      }
       if (auth != apiKey) {
         gWs.close();
         res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
       }else {
+        sign = true;
         res.send(JSON.stringify({message:"Success connection.",bool:true}))
       }
-    })
+    });
 
     server.ws(appRoute, function(ws, req) {
       gWs = ws;
@@ -52,6 +61,18 @@ function Dropper(server) {
       clients[ws.id] = ws;
       var response = {event:"session", data:{connection:refID}};
       clients[refID].send(JSON.stringify(response));
+      var i = 0;
+      var checkSign = setInterval(() =>{
+        if(sign === false && i < 2) {
+          i++
+        }else {
+          if (!sign) {
+            ws.close();
+            sign = false;
+          };
+          clearInterval(checkSign)
+        }
+      },1000)
       ws.on('message', function(msg) {
         em.emit("message", msg);
       });

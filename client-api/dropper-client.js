@@ -6,8 +6,11 @@ function Dropper(config) {
   auth = config.apiKey,
   connection = config.connect,
   path = connection.path || "/dropper",
-  logs = config.logs || false;
+  logs = config.logs || false,
+  protocol = "http://",
+  secure = config.ssecure || false;
 
+  if (secure == true) protocol = "https://"
   if (path[0] != "/") path = "/"+ path;
   if (!auth || auth.length == 0) {
     console.error("Please provide any apiKey in the options to connect the Droppet instance");
@@ -18,7 +21,7 @@ function Dropper(config) {
 
   var em = new EventEmitter();
 
-  fetch("http://"+connection.domain+path, {
+  fetch(protocol+connection.domain+path, {
     method: "GET",
     headers: {
       "Authorization": auth,
@@ -27,8 +30,10 @@ function Dropper(config) {
   })
   .then(res => res.json())
   .then(pass => {
-    if (!pass.bool) socket.close();
-    console.log(pass.message);
+    if (!pass.bool) {
+      socket.close();
+      console.log(pass.message);
+  }
   });
 
   // RAW socket functions

@@ -20,6 +20,7 @@
   "author": "Denyn Crawford",
   "license": "MIT",
   "dependencies": {
+    "aes4js": "^1.0.0",
     "express-ws": "^4.0.0",
     "nedb": "^1.8.0",
     "pug": "^2.0.4",

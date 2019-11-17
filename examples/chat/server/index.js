@@ -17,8 +17,9 @@ app.get("/", function(req, res) {
   res.sendFile(path.resolve("views/index.html"));
 })
 
-dropper.on("appendMS", function(data) {
-  dopper.emit("respone", data.message)
+dropper.on("sendMS", function(data) {
+  console.log(dropper.clients.ids);
+  dropper.emit("sended", data.message)
 })
 
 app.listen(3000)

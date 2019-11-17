@@ -20,7 +20,7 @@ $("#mainText").on("keypress", function(e) {
   var cookie = Cookies.get("login")
   if (e.code == "Enter" && value.length != 0 ) {
     console.log(cookie);
-    var append = new AppendMS({
+    var append = new SendMS({
       message: value,
       date: moment().format("DDMMYYYh:mm:ss"),
       peer: cookie
@@ -29,22 +29,50 @@ $("#mainText").on("keypress", function(e) {
   }
 });
 
-function AppendMS(params) {
+function SendMS(params) {
   var message = params.message,
   date = params.date,
   peer = params.peer,
   relative = moment(date, "DDMMYYYh:mm:sss").fromNow();
-  socket.emit("appendMS", params);
-  socket.on("respone", function(data) {
-    console.log(data);
-  })
+  socket.emit("sendMS", params);
+}
+
+socket.on("sended", function(data) {
+  var cookie = Cookies.get("login");
+  if (!isInWindow()) {
+    var notif = document.getElementById("notif");
+    notif.pause();
+    notif.currentTime = 0;
+    notif.play();
+  }
   var box = $(".mainScroll");
   var last = $(".messageGroup").last();
-  if (last.hasClass("me") && last.hasClass(peer)) {
-    last.append("<div class='message'><p>"+message+"</p></div>");
-    $(".chatview").scrollTop(box.height());
-  }else {
-    box.append("<div class='messageGroup me "+peer+"'><div class='message'><p>"+message+"</p></div></div>")
-    $(".chatview").scrollTop(box.height());
+  if (data.peer == cookie) {
+    if (last.hasClass("me") && last.hasClass(data.peer)) {
+      last.append("<div class='message'><p>"+data.message+"</p></div>");
+      $(".chatview").scrollTop(box.height());
+    }else {
+      box.append("<div class='messageGroup me "+data.peer+"'><div class='message'><p>"+data.message+"</p></div></div>")
+      $(".chatview").scrollTop(box.height());
+    }
+  } else {
+    if (last.hasClass("other") && last.hasClass(data.peer)) {
+      last.append("<div class='message'><p>"+data.message+"</p></div>");
+      $(".chatview").scrollTop(box.height());
+    }else {
+      box.append("<div class='messageGroup other "+data.peer+"'><div class='message'><p>"+data.message+"</p></div></div>")
+      $(".chatview").scrollTop(box.height());
+    }
   }
+});
+
+function isInWindow() {
+  var state = true;
+  $(window).focus(() => {
+    state = true;
+  })
+  $(window).focusout(() => {
+    state = false;
+  })
+  return state;
 }
