@@ -27,7 +27,7 @@ function Dropper(config) {
 
   fetch(protocol+connection.domain+path, {
     method: "GET",
-    mode: "cors",
+    mode: "no-cors",
     headers: {
       "Authorization": auth,
       'Content-Type': 'application/json'
