@@ -23,8 +23,8 @@ function Dropper(server) {
     const uuid = require('uuid/v1');
     const fs = require('fs');
     const pug = require('pug');
-    const Datastore = require('nedb');
-    const db = new Datastore({ filename: './store/datastore.json', autoload: true });
+    //const Datastore = require('nedb');
+    //const db = new Datastore({ filename: './store/datastore.json', autoload: true });
     const expressWs = require('express-ws')(server);
     const xterm = require('xterm');
 

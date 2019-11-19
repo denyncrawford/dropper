@@ -8,20 +8,16 @@ function Dropper(config) {
   path = connection.path || "/dropper",
   logs = config.logs || false,
   protocol = "http://",
-  wsProtocol = "ws://",
-  secure = connection.secure || false;
+  secure = config.ssecure || false;
 
-  if (secure == true) {
-    protocol = "https://";
-    wsProtocol = "wss://"
-  }
+  if (secure == true) protocol = "https://"
   if (path[0] != "/") path = "/"+ path;
   if (!auth || auth.length == 0) {
     console.error("Please provide any apiKey in the options to connect the Droppet instance");
     return
   }
 
-  var socket = new WebSocket(wsProtocol+connection.domain+path);
+  var socket = new WebSocket("ws://"+connection.domain+path);
 
   var em = new EventEmitter();
 
@@ -46,10 +42,6 @@ function Dropper(config) {
     em.emit("message", res.data);
   }
 
-  socket.onopen = function(res) {
-    em.emit("open", res.data);
-  }
-
   // RAW socket functions
 
   this.emit = function(thisEvent, thisMessage) {
@@ -69,13 +61,12 @@ function Dropper(config) {
   this.on = function(evt, cb) {
     switch (evt) {
       case "open":
-        em.on("open",function(res) {
+        socket.onopen = function(res) {
           return cb(res)
-        })
+        }
         break;
       case "message":
         em.on("message", function(data) {
-          console.log(data);
           if (isJson(data)) {
             data = JSON.parse(data);
           }
