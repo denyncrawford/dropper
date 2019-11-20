@@ -18,7 +18,7 @@ function Dropper(config) {
   if (path[0] != "/") path = "/"+ path;
   if (!auth || auth.length == 0) {
     console.error("Please provide any apiKey in the options to connect the Droppet instance");
-    return
+    return;
   }
 
   var socket = new WebSocket(wsProtocol+connection.domain+path);
@@ -27,7 +27,7 @@ function Dropper(config) {
 
   fetch(protocol+connection.domain+path, {
     method: "GET",
-    mode: "no-cors",
+    mode: "cors",
     headers: {
       "Authorization": auth,
       'Content-Type': 'application/json'
