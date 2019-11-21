@@ -21,9 +21,10 @@ function Dropper(config) {
     return;
   }
 
-  var socket = new WebSocket(wsProtocol+connection.domain+path);
+  var ws = new WebSocket(wsProtocol+connection.domain+path);
 
   var em = new EventEmitter();
+  var prevClosing;
 
   fetch(protocol+connection.domain+path, {
     method: "GET",
@@ -36,19 +37,28 @@ function Dropper(config) {
   .then(res => res.json())
   .then(pass => {
     if (!pass.bool) {
-      socket.close();
+      ws.close();
       console.log(pass.message);
-  }
+    }else {
+      prevClosing = setInterval(() => {
+        ws.send("prevent");
+      },25000);
+    }
   });
 
   // Events
 
-  socket.onmessage = (res) => {
+  ws.onmessage = (res) => {
     em.emit("message", res.data);
   }
 
-  socket.onopen = function(res) {
+  ws.onopen = function(res) {
     em.emit("open", res.data);
+  }
+
+  ws.onclose = function(res) {
+    em.emit("close", res);
+    clearInterval(prevClosing)
   }
 
   // RAW socket functions
@@ -57,14 +67,14 @@ function Dropper(config) {
     if (typeof thisMessage === "undefined") {
       thisMessage = thisEvent;
       thisEvent = null;
-      socket.send(thisMessage);
+      ws.send(thisMessage);
     }else{
-      socket.send(JSON.stringify({event:thisEvent, message:thisMessage}));
+      ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
     }
   }
 
   this.close = function() {
-    socket.close();
+    ws.close();
   }
 
   this.on = function(evt, cb) {
@@ -85,9 +95,9 @@ function Dropper(config) {
         })
         break;
       case "close":
-        socket.onclose = function(res) {
+        em.on("close", function(res) {
           return cb(res)
-        }
+        });
         break;
       default:
         em.on ("message", function(data) {
@@ -125,9 +135,9 @@ function Dropper(config) {
     if (typeof data == "undefined") {
       data = evt;
       evt = null;
-      socket.send(JSON.stringify({channel:channel, message:data}));
+      ws.send(JSON.stringify({channel:channel, message:data}));
     }else {
-      socket.send(JSON.stringify({channel: channel, event:evt, message:data}));
+      ws.send(JSON.stringify({channel: channel, event:evt, message:data}));
     }
   }
   //-------
