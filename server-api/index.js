@@ -78,8 +78,11 @@ function Dropper(server) {
         if (isJson(msg)) {
           pre = JSON.parse(msg);
         }
-        if (pre.event == "dataSync") em.emit("dataSync", {ws: ws, id:ws.id, data:pre.message});
-        em.emit("message", msg);
+        if (pre.event == "dataSync") {
+          em.emit("dataSync", {ws: ws, id:ws.id, data:pre.message});
+        }else {
+          em.emit("message", msg);
+        }
       });
       ws.on("close", function() {
         delete clients[ws.id];
@@ -202,9 +205,9 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
-        case "connection":
+        case "dataSync":
           em.on("dataSync", function(msg) {
-            return cb(msg.ws,msg.id,msg.message)
+            return cb(msg.ws,msg.id,msg.data)
           })
           break;
         case "message":

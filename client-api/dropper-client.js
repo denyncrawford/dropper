@@ -26,6 +26,7 @@ function Dropper(config) {
   var em = new EventEmitter();
   var prevClosing;
   var isCLosed = false;
+  var online = true;
   var pending = [];
 
   fetch(protocol+connection.domain+path, {
@@ -66,11 +67,19 @@ function Dropper(config) {
     if (code == 1002 || code == 4001 || code == 1000) {
       em.emit("close", res)
     }else {
-      ws = new WebSocket(wsProtocol+connection.domain+path)
-      isCLosed = false;
-      for (var i = 0; i < pending.length; i++) {
-        ws.send(pending[i]);
-      }
+      var srt = setInterval(() => {
+        if (online) {
+          clearInterval(srt);
+          ws = new WebSocket(wsProtocol+connection.domain+path)
+          isCLosed = false;
+          for (var i = 0; i < pending.length; i++) {
+            ws.send(pending[i]);
+          }
+          pending = [];
+        }else {
+          console.log("reconnecting...");
+        }
+      },100)
     }
   }
 
@@ -104,7 +113,6 @@ function Dropper(config) {
         break;
       case "message":
         em.on("message", function(data) {
-          console.log(data);
           if (isJson(data)) {
             data = JSON.parse(data);
           }
@@ -198,6 +206,14 @@ if (typeof Array.prototype.indexOf === 'function') {
 
 
 /* Polyfill EventEmitter. */
+
+document.addEventListener("online", function() {
+  online = true;
+})
+
+document.addEventListener("offline", function() {
+  online = false;
+})
 
 var EventEmitter = function () {
     this.events = {};
