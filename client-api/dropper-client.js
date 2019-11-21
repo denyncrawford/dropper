@@ -25,6 +25,8 @@ function Dropper(config) {
 
   var em = new EventEmitter();
   var prevClosing;
+  var isCLosed = true;
+  var pending = [];
 
   fetch(protocol+connection.domain+path, {
     method: "GET",
@@ -40,6 +42,7 @@ function Dropper(config) {
       ws.close();
       console.log(pass.message);
     }else {
+      isCLosed = true;
       prevClosing = setInterval(() => {
         ws.send("prevent");
       },25000);
@@ -57,8 +60,17 @@ function Dropper(config) {
   }
 
   ws.onclose = function(res) {
-    em.emit("close", res);
-    clearInterval(prevClosing)
+    isCLosed = true;
+    var code = res.code
+    if (code == 1002 || code == 4001) {
+      em.emit("close", res)
+    }else {
+      ws = new WebSocket(wsProtocol+connection.domain+path)
+      isCLosed = false;
+      for (var i = 0; i < pending.length; i++) {
+        ws.send(pending[i]);
+      }
+    }
   }
 
   // RAW socket functions
@@ -69,7 +81,12 @@ function Dropper(config) {
       thisEvent = null;
       ws.send(thisMessage);
     }else{
-      ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
+      if (isCLosed) {
+        console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
+        pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
+      }else {
+        ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
+      }
     }
   }
 

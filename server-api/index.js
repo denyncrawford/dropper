@@ -40,12 +40,12 @@ function Dropper(server) {
       var auth = req.get("Authorization");
       var checkProtocol = req.connection.encrypted;
       if (secure && !checkProtocol) {
-        gWs.close()
+        gWs.close(1002, "Not Secure.")
         res.send(JSON.stringify({message:"Set the the secure option to false to allow not seccure connections.",bool:false}))
         return next();
       }
       if (auth != apiKey) {
-        gWs.close();
+        gWs.close(4001, "Unauthorized");
         res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
       }else {
         sign = true;
