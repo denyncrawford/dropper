@@ -74,6 +74,11 @@ function Dropper(server) {
         }
       },1000)
       ws.on('message', function(msg) {
+        var pre = msg;
+        if (isJson(msg)) {
+          pre = JSON.parse(msg);
+        }
+        if (pre.event == "dataSync") em.emit("dataSync", {ws: ws, id:ws.id, data:pre.message});
         em.emit("message", msg);
       });
       ws.on("close", function() {
@@ -81,7 +86,7 @@ function Dropper(server) {
         for (var i = 0; i < ids.length; i++) {
           if (ids[i] == ws.id) ids.splice(i);
         }
-        em.emit("close", ws.id);
+        em.emit("close", ws);
       })
     });
 
@@ -136,8 +141,8 @@ function Dropper(server) {
 
     //WebSocket api
 
-    this.client = function() {
-      if (typeof gWs == "undefined") return "No conection detected, please execute this on events methods."
+    this.client = function(clientID) {
+      if (typeof clientID == "undefined") return "No conection detected, please execute this on events methods."
       return gWs
     }
 
@@ -146,7 +151,7 @@ function Dropper(server) {
       return gWs.id
     };
 
-    this.clients = clients;
+    this.clients = aWss.clients;
 
     this.clients.ids = ids;
 
@@ -179,9 +184,17 @@ function Dropper(server) {
       if (typeof data == "undefined") {
         data = evt;
         evt = null;
-        clients[clientID].send(JSON.stringify({message:data}));
+        aWss.clients.forEach((client) => {
+          if (client.id == clientID) {
+            client.send(JSON.stringify({message:data}));
+          }
+        });
       }else {
-        clients[clientID].send(JSON.stringify({event:evt, message:data}));
+        aWss.clients.forEach((client) => {
+          if (client.id == clientID) {
+            client.send(JSON.stringify({event:evt, message:data}));
+          }
+        });
       }
     }
 
@@ -189,6 +202,11 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
+        case "connection":
+          em.on("dataSync", function(msg) {
+            return cb(msg.ws,msg.id,msg.message)
+          })
+          break;
         case "message":
           em.on("message", function(msg) {
             if (isJson(msg)) {

@@ -25,7 +25,7 @@ function Dropper(config) {
 
   var em = new EventEmitter();
   var prevClosing;
-  var isCLosed = true;
+  var isCLosed = false;
   var pending = [];
 
   fetch(protocol+connection.domain+path, {
@@ -83,8 +83,8 @@ function Dropper(config) {
       ws.send(thisMessage);
     }else{
       if (isCLosed) {
-        console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
         pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
+        console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
       }else {
         ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
       }
