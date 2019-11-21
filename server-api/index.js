@@ -166,8 +166,10 @@ function Dropper(server) {
       }
     }
 
-    this.close = function() {
-      gWs.close()
+    this.close = function(c,r) {
+      var code = c || 1000;
+      var reason = r || "";
+      gWs.close(code, reason)
     }
 
     this.client.emit = function(clientID, evt, data) {

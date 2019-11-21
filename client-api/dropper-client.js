@@ -41,8 +41,9 @@ function Dropper(config) {
     if (!pass.bool) {
       ws.close();
       console.log(pass.message);
-    }else {
       isCLosed = true;
+    }else {
+      isCLosed = false;
       prevClosing = setInterval(() => {
         ws.send("prevent");
       },25000);
@@ -62,7 +63,7 @@ function Dropper(config) {
   ws.onclose = function(res) {
     isCLosed = true;
     var code = res.code
-    if (code == 1002 || code == 4001) {
+    if (code == 1002 || code == 4001 || code == 1000) {
       em.emit("close", res)
     }else {
       ws = new WebSocket(wsProtocol+connection.domain+path)
