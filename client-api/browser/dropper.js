@@ -70,7 +70,7 @@ function Dropper(config) {
       em.emit("close", res)
     }else {
       var srt = setInterval(() => {
-        if (online && isCLosed) {
+        if (navigator.onLine && isCLosed) {
           ws = new WebSocket(wsProtocol+domain+path)
           isCLosed = false;
           for (var i = 0; i < pending.length; i++) {
@@ -88,7 +88,7 @@ function Dropper(config) {
     }
   }
 
-  // RAW socket functions
+  // RAW socket methods
 
   this.emit = function(thisEvent, thisMessage) {
     if (typeof thisMessage === "undefined") {
@@ -143,6 +143,8 @@ function Dropper(config) {
         })
     }
   }
+
+  // Channels methods
 
   this.subscribe = function(channelName) {
     var bind = function (evt, cb) {
@@ -209,9 +211,6 @@ if (typeof Array.prototype.indexOf === 'function') {
     };
 };
 
-
-/* Polyfill EventEmitter. */
-
 document.addEventListener("online", function() {
   online = true;
 })
@@ -219,6 +218,8 @@ document.addEventListener("online", function() {
 document.addEventListener("offline", function() {
   online = false;
 })
+
+/* Polyfill EventEmitter. */
 
 var EventEmitter = function () {
     this.events = {};
