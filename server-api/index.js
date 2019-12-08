@@ -237,7 +237,7 @@ function Dropper(server) {
       }
     }
 
-    // Data pusher notifications
+    // Channels API
 
     this.subscribe = function(channelName) {
       var bind = function (evt, cb) {

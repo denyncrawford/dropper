@@ -5,6 +5,7 @@ function Dropper(config) {
   pass = config.password,
   auth = config.apiKey,
   connection = config.connect,
+  domain = connection.domain || window.location.host,
   path = connection.path || "/dropper",
   logs = config.logs || false,
   protocol = "http://",
@@ -21,7 +22,7 @@ function Dropper(config) {
     return;
   }
 
-  var ws = new WebSocket(wsProtocol+connection.domain+path);
+  var ws = new WebSocket(wsProtocol+domain+path);
 
   var em = new EventEmitter();
   var prevClosing;
@@ -29,7 +30,7 @@ function Dropper(config) {
   var online = true;
   var pending = [];
 
-  fetch(protocol+connection.domain+path, {
+  fetch(protocol+domain+path, {
     method: "GET",
     mode: "cors",
     headers: {
@@ -46,7 +47,7 @@ function Dropper(config) {
     }else {
       isCLosed = false;
       prevClosing = setInterval(() => {
-        ws.send("prevent");
+        ws.send("dropper:prevent");
       },25000);
     }
   });
@@ -63,19 +64,23 @@ function Dropper(config) {
 
   ws.onclose = function(res) {
     isCLosed = true;
-    var code = res.code
+    var code = res.code;
+    clearInterval(prevClosing);
     if (code == 1002 || code == 4001 || code == 1000) {
       em.emit("close", res)
     }else {
       var srt = setInterval(() => {
-        if (online) {
-          clearInterval(srt);
-          ws = new WebSocket(wsProtocol+connection.domain+path)
+        if (online && isCLosed) {
+          ws = new WebSocket(wsProtocol+domain+path)
           isCLosed = false;
           for (var i = 0; i < pending.length; i++) {
             ws.send(pending[i]);
           }
           pending = [];
+          prevClosing = setInterval(() => {
+            ws.send("dropper:prevent");
+          },25000);
+          clearInterval(srt);
         }else {
           console.log("reconnecting...");
         }
