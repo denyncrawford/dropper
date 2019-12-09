@@ -51,11 +51,11 @@ function Dropper(config) {
 
   // Events
 
-  ws.onmessage = (res) => {
+  var onmessage = function (res){
     em.emit("message", res.data);
   }
 
-  ws.onopen = function(res) {
+  var onopen = function (res){
     em.emit("open", res.data);
     if (pending.length > 0) {
       for (var i = 0; i < pending.length; i++) {
@@ -68,7 +68,7 @@ function Dropper(config) {
     },25000);
   }
 
-  ws.onclose = function(res) {
+  var onclose = function(res) {
     isCLosed = true;
     var code = res.code;
     clearInterval(prevClosing);
@@ -78,7 +78,10 @@ function Dropper(config) {
       ws = null;
       var srt = setInterval(() => {
         if (navigator.onLine && isCLosed) {
-          ws = new WebSocket(wsProtocol+domain+path)
+          ws = new WebSocket(wsProtocol+domain+path);
+          ws.onmessage = onmessage;
+          ws.onopen = onopen;
+          ws.onclose = onclose;
           isCLosed = false;
           clearInterval(srt);
         }else {
@@ -87,6 +90,10 @@ function Dropper(config) {
       },100)
     }
   }
+
+  ws.onmessage = onmessage;
+  ws.onopen = onopen;
+  ws.onclose = onclose;
 
   // RAW socket methods
 
