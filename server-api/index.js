@@ -70,7 +70,7 @@ function Dropper(server) {
           i++
         }else {
           if (!sign) {
-            ws.close();
+            ws.close(4001, "Unauthorized");
             sign = false;
           };
           clearInterval(checkSign)

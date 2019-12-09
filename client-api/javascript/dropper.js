@@ -27,6 +27,7 @@ function Dropper(config) {
   var em = new EventEmitter();
   var prevClosing;
   var isCLosed = false;
+  var logged = false;
   var pending = [];
 
   // Handshake
@@ -45,28 +46,39 @@ function Dropper(config) {
       if (ws) ws.close(4001, "Unauthorized");
       console.error(pass.message);
       isCLosed = true;
+      logged = "fail"
     }else {
       isCLosed = false;
+      logged = true;
     }
   });
 
   // Events
 
   var onmessage = function (res){
-    em.emit("message", res.data);
+    if (logged == true) {
+      em.emit("message", res.data);
+    }
   }
 
   var onopen = function (res){
-    em.emit("open", res.data);
-    if (pending.length > 0) {
-      for (var i = 0; i < pending.length; i++) {
-        ws.send(pending[i]);
+    var loginCheck = setInterval(() => {
+      if (logged == true) {
+        em.emit("open", res.data);
+        if (pending.length > 0) {
+          for (var i = 0; i < pending.length; i++) {
+            ws.send(pending[i]);
+          }
+          pending = [];
+        }
+        prevClosing = setInterval(() => {
+          ws.send("dropper:prevent");
+        },25000);
+        clearInterval(loginCheck)
+      }else if (logged == "fail") {
+        clearInterval(loginCheck)
       }
-      pending = [];
-    }
-    prevClosing = setInterval(() => {
-      ws.send("dropper:prevent");
-    },25000);
+    },100)
   }
 
   var onclose = function(res) {
@@ -108,7 +120,7 @@ function Dropper(config) {
         pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
         console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
       }else {
-        ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
+        if (logged == true) ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
       }
     }
   }
