@@ -22,12 +22,12 @@ function Dropper(config) {
     return;
   }
 
-  var ws = new WebSocket(wsProtocol+domain+path);
-
   var em = new EventEmitter();
   var prevClosing;
   var isCLosed = false;
   var pending = [];
+
+  // HandShake
 
   fetch(protocol+domain+path, {
     method: "GET",
@@ -44,143 +44,144 @@ function Dropper(config) {
       console.error(pass.message);
       isCLosed = true;
     }else {
+      var ws = new WebSocket(wsProtocol+domain+path);
       isCLosed = false;
+
+      // Events
+
+      var onmessage = function (res){
+        em.emit("message", res.data);
+      }
+
+      var onopen = function (res){
+        em.emit("open", res.data);
+        if (pending.length > 0) {
+          for (var i = 0; i < pending.length; i++) {
+            ws.send(pending[i]);
+          }
+          pending = [];
+        }
+        prevClosing = setInterval(() => {
+          ws.send("dropper:prevent");
+        },25000);
+      }
+
+      var onclose = function(res) {
+        isCLosed = true;
+        var code = res.code;
+        clearInterval(prevClosing);
+        if (code == 1002 || code == 4001 || code == 1000) {
+          em.emit("close", res)
+        }else {
+          ws = null;
+          var srt = setInterval(() => {
+            if (navigator.onLine && isCLosed) {
+              ws = new WebSocket(wsProtocol+domain+path);
+              ws.onmessage = onmessage;
+              ws.onopen = onopen;
+              ws.onclose = onclose;
+              isCLosed = false;
+              clearInterval(srt);
+            }else {
+              console.log("Dropper is trying to reconnect...");
+            }
+          },100)
+        }
+      }
+
+      ws.onmessage = onmessage;
+      ws.onopen = onopen;
+      ws.onclose = onclose;
+
+      // RAW socket methods
+
+      this.emit = function(thisEvent, thisMessage) {
+        if (typeof thisMessage === "undefined") {
+          thisMessage = thisEvent;
+          thisEvent = null;
+          ws.send(thisMessage);
+        }else{
+          if (isCLosed) {
+            pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
+            console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
+          }else {
+            ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
+          }
+        }
+      }
+
+      this.close = function(c,r) {
+        var code = c || 1000;
+        var reason = r || "";
+        ws.close(code, reason)
+      }
+
+      this.on = function(evt, cb) {
+        switch (evt) {
+          case "open":
+            em.on("open",function(res) {
+              return cb(res)
+            })
+            break;
+          case "message":
+            em.on("message", function(data) {
+              if (isJson(data)) {
+                data = JSON.parse(data);
+              }
+              if (data.channel) return;
+              return cb(data);
+            })
+            break;
+          case "close":
+            em.on("close", function(res) {
+              return cb(res)
+            });
+            break;
+          default:
+            em.on ("message", function(data) {
+              if (isJson(data)) {
+                data = JSON.parse(data);
+              }
+              if (!data.event) return cb("Not event detected, try the default 'message' event to read raw data.")
+              if (evt == data.event) {
+                if (data.channel) return;
+                return cb(data.message, data)
+              }
+            })
+        }
+      }
+
+      // Channels methods
+
+      this.subscribe = function(channelName) {
+        var bind = function (evt, cb) {
+          em.on("message", function(msg) {
+            if (isJson(msg)) {
+              msg = JSON.parse(msg);
+            }
+            if (!msg.channel) return;
+            if (msg.channel != channelName) return;
+            if (msg.event == evt) return cb(msg.message)
+            return;
+          })
+        }
+        return {
+          bind: bind
+        }
+      }
+
+      this.trigger = function(channel, evt, data) {
+        if (typeof channel == "undefined") return console.log("Please provide a channel to use the trigger method.");
+        if (typeof data == "undefined") {
+          data = evt;
+          evt = null;
+          ws.send(JSON.stringify({channel:channel, message:data}));
+        }else {
+          ws.send(JSON.stringify({channel: channel, event:evt, message:data}));
+        }
+      }
     }
   });
-
-  // Events
-
-  var onmessage = function (res){
-    em.emit("message", res.data);
-  }
-
-  var onopen = function (res){
-    em.emit("open", res.data);
-    if (pending.length > 0) {
-      for (var i = 0; i < pending.length; i++) {
-        ws.send(pending[i]);
-      }
-      pending = [];
-    }
-    prevClosing = setInterval(() => {
-      ws.send("dropper:prevent");
-    },25000);
-  }
-
-  var onclose = function(res) {
-    isCLosed = true;
-    var code = res.code;
-    clearInterval(prevClosing);
-    if (code == 1002 || code == 4001 || code == 1000) {
-      em.emit("close", res)
-    }else {
-      ws = null;
-      var srt = setInterval(() => {
-        if (navigator.onLine && isCLosed) {
-          ws = new WebSocket(wsProtocol+domain+path);
-          ws.onmessage = onmessage;
-          ws.onopen = onopen;
-          ws.onclose = onclose;
-          isCLosed = false;
-          clearInterval(srt);
-        }else {
-          console.log("Dropper is trying to reconnect...");
-        }
-      },100)
-    }
-  }
-
-  ws.onmessage = onmessage;
-  ws.onopen = onopen;
-  ws.onclose = onclose;
-
-  // RAW socket methods
-
-  this.emit = function(thisEvent, thisMessage) {
-    if (typeof thisMessage === "undefined") {
-      thisMessage = thisEvent;
-      thisEvent = null;
-      ws.send(thisMessage);
-    }else{
-      if (isCLosed) {
-        pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
-        console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
-      }else {
-        ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
-      }
-    }
-  }
-
-  this.close = function(c,r) {
-    var code = c || 1000;
-    var reason = r || "";
-    ws.close(code, reason)
-  }
-
-  this.on = function(evt, cb) {
-    switch (evt) {
-      case "open":
-        em.on("open",function(res) {
-          return cb(res)
-        })
-        break;
-      case "message":
-        em.on("message", function(data) {
-          if (isJson(data)) {
-            data = JSON.parse(data);
-          }
-          if (data.channel) return;
-          return cb(data);
-        })
-        break;
-      case "close":
-        em.on("close", function(res) {
-          return cb(res)
-        });
-        break;
-      default:
-        em.on ("message", function(data) {
-          if (isJson(data)) {
-            data = JSON.parse(data);
-          }
-          if (!data.event) return cb("Not event detected, try the default 'message' event to read raw data.")
-          if (evt == data.event) {
-            if (data.channel) return;
-            return cb(data.message, data)
-          }
-        })
-    }
-  }
-
-  // Channels methods
-
-  this.subscribe = function(channelName) {
-    var bind = function (evt, cb) {
-      em.on("message", function(msg) {
-        if (isJson(msg)) {
-          msg = JSON.parse(msg);
-        }
-        if (!msg.channel) return;
-        if (msg.channel != channelName) return;
-        if (msg.event == evt) return cb(msg.message)
-        return;
-      })
-    }
-    return {
-      bind: bind
-    }
-  }
-
-  this.trigger = function(channel, evt, data) {
-    if (typeof channel == "undefined") return console.log("Please provide a channel to use the trigger method.");
-    if (typeof data == "undefined") {
-      data = evt;
-      evt = null;
-      ws.send(JSON.stringify({channel:channel, message:data}));
-    }else {
-      ws.send(JSON.stringify({channel: channel, event:evt, message:data}));
-    }
-  }
   //-------
 }
 
