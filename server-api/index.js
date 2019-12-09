@@ -31,10 +31,10 @@ function Dropper(server) {
 
     // Open Websocket connection
 
-    var clients = {};
     var ids = [];
     var gWs;
     var aWss = expressWs.getWss(appRoute);
+    var clients = aWss.clients;
     var sign = false;
 
     server.use(cors());
@@ -60,12 +60,14 @@ function Dropper(server) {
 
     server.ws(appRoute, function(ws, req) {
       gWs = ws;
-      ws.id = req.headers['sec-websocket-key'];
+      ws.id = uuid();
       var refID = ws.id;
       ids.push(refID);
-      clients[ws.id] = ws;
-      var response = {event:"session", data:{connection:refID}};
-      clients[refID].send(JSON.stringify(response));
+      em.emit("dropper:connection", {id:ws.id});
+      var dropper_connection = {event:"dropper:connection", message:{id:refID,all:ids}};
+      aWss.clients.forEach((client) => {
+        client.send(JSON.stringify(dropper_connection));
+      });
       var i = 0;
       em.on("sign", function(sign) {
         if (!sign) {
@@ -84,10 +86,14 @@ function Dropper(server) {
         }
       });
       ws.on("close", function() {
-        delete clients[ws.id];
         for (var i = 0; i < ids.length; i++) {
           if (ids[i] == ws.id) ids.splice(i);
         }
+        em.emit("dropper:disconnection", {id:ws.id});
+        var dropper_disconnection = {event:"dropper:disconnection", message:{id:ws.id,all:ids}};
+        aWss.clients.forEach((client) => {
+          client.send(JSON.stringify(dropper_disconnection));
+        });
         em.emit("close", ws);
       })
     });
@@ -204,6 +210,16 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
+        case "dropper:connection":
+          em.on("dropper:connection", function(msg) {
+            return cb(msg)
+          });
+          break;
+        case "dropper:disconnection":
+          em.on("dropper:disconnection", function(msg) {
+            return cb(msg)
+          });
+          break;
         case "dataSync":
           em.on("dataSync", function(msg) {
             return cb(msg.ws,msg.id,msg.data)

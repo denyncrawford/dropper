@@ -86,18 +86,22 @@ function Dropper(config) {
     isCLosed = true;
     var code = res.code;
     clearInterval(prevClosing);
-    if (code == 1002 || code == 4001 || code == 1000) {
+    if (code == 1002 || code >= 4000 || code == 1000) {
       em.emit("close", res)
+      return;
     }else {
       ws = null;
       var srt = setInterval(() => {
-        if (navigator.onLine && isCLosed) {
+        if (navigator.onLine && isCLosed && logged) {
           ws = new WebSocket(wsProtocol+domain+path);
           ws.onmessage = onmessage;
           ws.onopen = onopen;
           ws.onclose = onclose;
           isCLosed = false;
           clearInterval(srt);
+        }else if (logged == "fail") {
+          clearInterval(srt);
+          return
         }else {
           console.log("Dropper is trying to reconnect...");
         }
@@ -134,6 +138,26 @@ function Dropper(config) {
 
   this.on = function(evt, cb) {
     switch (evt) {
+      case "dropper:disconnection":
+        em.on("message", function(data) {
+          if (isJson(data)) {
+            data = JSON.parse(data);
+          }
+          if (data.event == "dropper:disconnection") {
+            return cb(data.message)
+          }
+        })
+        break;
+      case "dropper:connection":
+        em.on("message", function(data) {
+          if (isJson(data)) {
+            data = JSON.parse(data);
+          }
+          if (data.event == "dropper:connection") {
+            return cb(data.message)
+          }
+        })
+        break;
       case "connect":
         em.on("connect",function(res) {
           return cb(res)
