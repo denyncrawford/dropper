@@ -42,13 +42,10 @@ function Dropper(config) {
   .then(pass => {
     if (!pass.bool) {
       ws.close();
-      console.log(pass.message);
+      console.error(pass.message);
       isCLosed = true;
     }else {
       isCLosed = false;
-      prevClosing = setInterval(() => {
-        ws.send("dropper:prevent");
-      },25000);
     }
   });
 
@@ -66,6 +63,9 @@ function Dropper(config) {
       }
       pending = [];
     }
+    prevClosing = setInterval(() => {
+      ws.send("dropper:prevent");
+    },25000);
   }
 
   ws.onclose = function(res) {
@@ -79,9 +79,6 @@ function Dropper(config) {
         if (navigator.onLine && isCLosed) {
           ws = new WebSocket(wsProtocol+domain+path)
           isCLosed = false;
-          prevClosing = setInterval(() => {
-            ws.send("dropper:prevent");
-          },25000);
           clearInterval(srt);
         }else {
           console.log("Dropper is trying to reconnect...");
