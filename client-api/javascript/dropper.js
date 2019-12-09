@@ -27,7 +27,6 @@ function Dropper(config) {
   var em = new EventEmitter();
   var prevClosing;
   var isCLosed = false;
-  var online = true;
   var pending = [];
 
   fetch(protocol+domain+path, {
@@ -219,14 +218,6 @@ if (typeof Array.prototype.indexOf === 'function') {
         return idx;
     };
 };
-
-document.addEventListener("online", function() {
-  online = true;
-})
-
-document.addEventListener("offline", function() {
-  online = false;
-})
 
 /* Polyfill EventEmitter. */
 
