@@ -60,6 +60,12 @@ function Dropper(config) {
 
   ws.onopen = function(res) {
     em.emit("open", res.data);
+    if (pending.length > 0) {
+      for (var i = 0; i < pending.length; i++) {
+        ws.send(pending[i]);
+      }
+      pending = [];
+    }
   }
 
   ws.onclose = function(res) {
@@ -73,16 +79,12 @@ function Dropper(config) {
         if (navigator.onLine && isCLosed) {
           ws = new WebSocket(wsProtocol+domain+path)
           isCLosed = false;
-          for (var i = 0; i < pending.length; i++) {
-            ws.send(pending[i]);
-          }
-          pending = [];
           prevClosing = setInterval(() => {
             ws.send("dropper:prevent");
           },25000);
           clearInterval(srt);
         }else {
-          console.log("reconnecting...");
+          console.log("Dropper is trying to reconnect...");
         }
       },100)
     }
