@@ -62,6 +62,7 @@ function Dropper(config) {
   }
 
   var onopen = function (res){
+    em.emit("connect", {status:true,message:"Connection stabilized"})
     var loginCheck = setInterval(() => {
       if (logged == true) {
         em.emit("open", res.data);
@@ -117,7 +118,7 @@ function Dropper(config) {
       ws.send(thisMessage);
     }else{
       if (isCLosed) {
-        pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
+        if (logged == true) pending.push(JSON.stringify({event:thisEvent, message:thisMessage}));
         console.error("The connection is closed, but Dropper added your data in the queue to be sent when reconnecting.");
       }else {
         if (logged == true) ws.send(JSON.stringify({event:thisEvent, message:thisMessage}));
@@ -133,6 +134,11 @@ function Dropper(config) {
 
   this.on = function(evt, cb) {
     switch (evt) {
+      case "connect":
+        em.on("connect",function(res) {
+          return cb(res)
+        })
+        break;
       case "open":
         em.on("open",function(res) {
           return cb(res)
@@ -190,9 +196,9 @@ function Dropper(config) {
     if (typeof data == "undefined") {
       data = evt;
       evt = null;
-      ws.send(JSON.stringify({channel:channel, message:data}));
+      if (logged == true) ws.send(JSON.stringify({channel:channel, message:data}));
     }else {
-      ws.send(JSON.stringify({channel: channel, event:evt, message:data}));
+      if (logged == true) ws.send(JSON.stringify({channel: channel, event:evt, message:data}));
     }
   }
   //-------

@@ -50,8 +50,10 @@ function Dropper(server) {
       if (auth != apiKey) {
         gWs.close(4001, "Unauthorized");
         res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
+        em.emit("sign", sign)
       }else {
         sign = true;
+        em.emit("sign", sign)
         res.send(JSON.stringify({message:"Success connection.",bool:true}))
       }
     });
@@ -65,17 +67,11 @@ function Dropper(server) {
       var response = {event:"session", data:{connection:refID}};
       clients[refID].send(JSON.stringify(response));
       var i = 0;
-      var checkSign = setInterval(() =>{
-        if(sign === false && i < 2) {
-          i++
-        }else {
-          if (!sign) {
-            ws.close(4001, "Unauthorized");
-            sign = false;
-          };
-          clearInterval(checkSign)
-        }
-      },1000)
+      em.on("sign", function(sign) {
+        if (!sign) {
+          ws.close(4001, "Unauthorized");
+        };
+      });
       ws.on('message', function(msg) {
         var pre = msg;
         if (isJson(msg)) {
