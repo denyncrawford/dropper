@@ -41,7 +41,7 @@ function Dropper(config) {
   .then(res => res.json())
   .then(pass => {
     if (!pass.bool) {
-      ws.close();
+      if (ws) ws.close(4001, "Unauthorized");
       console.error(pass.message);
       isCLosed = true;
     }else {

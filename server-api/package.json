@@ -1,6 +1,6 @@
 {
   "name": "dropperjs",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "Real-time data pusher",
   "main": "index.js",
   "scripts": {
