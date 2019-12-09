@@ -91,7 +91,7 @@ Dropper has a very easy to use API, both the server and the client are practical
 
 In order to developing scalable applications Dropper has dedicated spaces called "channels" which exists to broadcast information separately from the global scope of your dropper instance.
 
-Of course there could co-exist different instances of Dropper in a single application, but this means that for each instance / app, is allow dispatch events in separate spaces without affecting the functionality of other events and channels.
+> Of course, several instances of Dropper could coexist in a single application, but this means that for each instance / app, is allow dispatch events in separate spaces without affecting the functionality of other events and channels.
 
 ## Installation
 
