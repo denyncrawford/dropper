@@ -36,6 +36,8 @@ function Dropper(server) {
     var aWss = expressWs.getWss(appRoute);
     var sign = false;
 
+    server.use(cors());
+
     server.get(appRoute, function(req, res, next) {
       var auth = req.get("Authorization");
       var checkProtocol = req.connection.encrypted;

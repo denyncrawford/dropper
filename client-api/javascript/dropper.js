@@ -112,8 +112,10 @@ function Dropper(config) {
     }
   }
 
-  this.close = function() {
-    ws.close();
+  this.close = function(c,r) {
+    var code = c || 1000;
+    var reason = r || "";
+    ws.close(code, reason)
   }
 
   this.on = function(evt, cb) {

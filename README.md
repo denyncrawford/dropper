@@ -89,9 +89,9 @@ Dropper has a very easy to use API, both the server and the client are practical
 
 - Channels
 
-In order to developing scalable applications Dropper has dedicated spaces called "channels" which exists to broadcast information separate from the global scope of your dropper instance.
+In order to developing scalable applications Dropper has dedicated spaces called "channels" which exists to broadcast information separately from the global scope of your dropper instance.
 
-Of course there may be different instances of Dropper in a single application but this means that for each instance / app, you have the possibility to dispatch events in separate spaces without affecting the functionality of other channels.
+Of course there could co-exist different instances of Dropper in a single application, but this means that for each instance / app, is allow dispatch events in separate spaces without affecting the functionality of other events and channels.
 
 ## Installation
 
@@ -104,13 +104,13 @@ Of course there may be different instances of Dropper in a single application bu
 -  **JsDelivr**
 
 
-        <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/dropper-client.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/javascript/dropper-client.js"></script>
 
 
 - **RawGitHack**
 
 
-        <script src="https://raw.githack.com/denyncrawford/dropper/master/client-api/dropper-client.js" charset="utf-8"></script>
+        <script src="https://raw.githack.com/denyncrawford/dropper/master/client-api/javascript/dropper.js" charset="utf-8"></script>
 
 ## Documents
 
