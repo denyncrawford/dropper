@@ -1,6 +1,6 @@
 // Login
 
-var socket = new Dropper({
+var dropper = new Dropper({
   appName: "my-dropper",
   apiKey: "788caa30-2226-4957-9dec-7c3ae5fbd479",
   connect: {
@@ -18,11 +18,11 @@ $(document).ready(function() {
 
 var online = [];
 
-socket.on("newUser", function(user) {
+dropper.on("newUser", function(user) {
   online.push(user)
 });
 
-socket.on("updateUsers", function(users) {
+dropper.on("updateUsers", function(users) {
   online = users;
   $(".header h4 span").html("("+users.length+" Online)");
 });
@@ -44,10 +44,10 @@ $("#nameset").on("keypress", (e) => {
       $("#nameset").fadeOut(200);
       setTimeout(() => {
         $(".nameSelector h2").fadeIn(200);
-        socket.emit("newUser", user);
+        dropper.emit("newUser", user);
       }, 300)
       setTimeout(() => {
-        socket.emit("updateUsers", online);
+        dropper.emit("updateUsers", online);
         $(".nameSelector").fadeOut(200);
       },2000)
     }
@@ -60,7 +60,7 @@ var typing = false;
 
 $("#mainText").on("keydown", () => {
   if (!typing) {
-    socket.emit("typing", {peer:gCookie, state:true});
+    dropper.emit("typing", {peer:gCookie, state:true});
     typing = true;
   }
   clearTimeout(stopTyping);
@@ -70,7 +70,7 @@ $("#mainText").on("keyup", (e) => {
   clearTimeout(stopTyping);
   stopTyping = setTimeout(() => {
     typing = false;
-    socket.emit("typing", {peer:gCookie, state:false});
+    dropper.emit("typing", {peer:gCookie, state:false});
   },1500)
 });
 
@@ -80,7 +80,7 @@ $("#mainText").on("keydown", function(e) {
   if (e.code == "Backspace") {
     typing = false;
     clearTimeout(stopTyping);
-    socket.emit("typing", {peer:cookie, state:false});
+    dropper.emit("typing", {peer:cookie, state:false});
   }
   if (e.code == "Enter" && value.length != 0 ) {
     var append = new SendMS({
@@ -91,11 +91,11 @@ $("#mainText").on("keydown", function(e) {
     $(this).val("");
     typing = false;
     clearTimeout(stopTyping);
-    socket.emit("typing", {peer:cookie, state:false});
+    dropper.emit("typing", {peer:cookie, state:false});
   }
 });
 
-socket.on("typing", function(data) {
+dropper.on("typing", function(data) {
   var box = $(".mainScroll");
   var last = $(".messageGroup").last();
   if (data.state) {
@@ -127,7 +127,7 @@ function SendMS(params) {
   date = params.date,
   peer = params.peer,
   relative = moment(date, "DDMMYYYh:mm:sss").fromNow();
-  socket.emit("sendMS", params);
+  dropper.emit("sendMS", params);
 }
 
 var title = document.querySelector("title");
@@ -135,7 +135,7 @@ var originalText = title.innerHTML;
 var notSeen = 0;
 var notif = document.getElementById("notif");
 
-socket.on("sended", function(data) {
+dropper.on("sended", function(data) {
   var cookie = Cookies.get("login");
   var focused = document.hasFocus();
   if (!focused) {
@@ -196,5 +196,5 @@ function isInWindow() {
 }
 
 $(window).on("beforeunload", function() {
-  socket.emit("updateUsers", {unload:true, peer:gCookie});
+  dropper.emit("updateUsers", {unload:true, peer:gCookie});
 });

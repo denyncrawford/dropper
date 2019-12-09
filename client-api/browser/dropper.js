@@ -75,6 +75,7 @@ function Dropper(config) {
     if (code == 1002 || code == 4001 || code == 1000) {
       em.emit("close", res)
     }else {
+      ws = null;
       var srt = setInterval(() => {
         if (navigator.onLine && isCLosed) {
           ws = new WebSocket(wsProtocol+domain+path)
