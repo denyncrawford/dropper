@@ -56,7 +56,11 @@ function Dropper(config) {
   // Events
 
   var onmessage = function (res){
-    if (logged == true) {
+    var data = res.data;
+    if (isJson(data)) {
+      data = JSON.parse(data);
+    }
+    if (logged == true || data.event == "connection") {
       em.emit("message", res.data);
     }
   }
@@ -138,26 +142,6 @@ function Dropper(config) {
 
   this.on = function(evt, cb) {
     switch (evt) {
-      case "dropper:disconnection":
-        em.on("message", function(data) {
-          if (isJson(data)) {
-            data = JSON.parse(data);
-          }
-          if (data.event == "dropper:disconnection") {
-            return cb(data.message)
-          }
-        })
-        break;
-      case "dropper:connection":
-        em.on("message", function(data) {
-          if (isJson(data)) {
-            data = JSON.parse(data);
-          }
-          if (data.event == "dropper:connection") {
-            return cb(data.message)
-          }
-        })
-        break;
       case "connect":
         em.on("connect",function(res) {
           return cb(res)

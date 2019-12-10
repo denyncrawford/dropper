@@ -20,6 +20,7 @@ function Dropper(server) {
     const events = require('events');
     const express = require('express');
     const em = new events.EventEmitter();
+    em.setMaxListeners(0)
     const uuid = require('uuid/v1');
     const fs = require('fs');
     const pug = require('pug');
@@ -54,7 +55,7 @@ function Dropper(server) {
       }else {
         sign = true;
         em.emit("sign", sign)
-        res.send(JSON.stringify({message:"Success connection.",bool:true}))
+        res.send(JSON.stringify({message:"Success connection.",bool:true}));
       }
     });
 
@@ -63,16 +64,16 @@ function Dropper(server) {
       ws.id = uuid();
       var refID = ws.id;
       ids.push(refID);
-      em.emit("dropper:connection", {id:ws.id});
-      var dropper_connection = {event:"dropper:connection", message:{id:refID,all:ids}};
+      var i = 0;
+      em.emit("connection", {id:ws.id});
+      var dropper_connection = {event:"connection", message:{id:refID,all:ids}};
       aWss.clients.forEach((client) => {
         client.send(JSON.stringify(dropper_connection));
       });
-      var i = 0;
       em.on("sign", function(sign) {
         if (!sign) {
           ws.close(4001, "Unauthorized");
-        };
+        }
       });
       ws.on('message', function(msg) {
         var pre = msg;
@@ -87,10 +88,11 @@ function Dropper(server) {
       });
       ws.on("close", function() {
         for (var i = 0; i < ids.length; i++) {
-          if (ids[i] == ws.id) ids.splice(i);
+          if (ids[i] == ws.id) ids.splice(i,1);
+          break;
         }
-        em.emit("dropper:disconnection", {id:ws.id});
-        var dropper_disconnection = {event:"dropper:disconnection", message:{id:ws.id,all:ids}};
+        em.emit("disconnection", {id:ws.id});
+        var dropper_disconnection = {event:"disconnection", message:{id:ws.id,all:ids}};
         aWss.clients.forEach((client) => {
           client.send(JSON.stringify(dropper_disconnection));
         });
@@ -210,13 +212,13 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
-        case "dropper:connection":
-          em.on("dropper:connection", function(msg) {
+        case "connection":
+          em.on("connection", function(msg) {
             return cb(msg)
           });
           break;
-        case "dropper:disconnection":
-          em.on("dropper:disconnection", function(msg) {
+        case "disconnection":
+          em.on("disconnection", function(msg) {
             return cb(msg)
           });
           break;
