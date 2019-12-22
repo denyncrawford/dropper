@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Dropper Chat</title>
+    <link rel="icon" href="https://img.icons8.com/cotton/64/000000/sms-1.png">
+    <link rel="stylesheet" href="./css/main.css">
+    <!--<script src="https://cdn.jsdelivr.net/gh/denyncrawford/dropper/client-api/javascript/dropper.js"></script>-->
+    <!--<script src="./js/dropper-client.js" charset="utf-8"></script>-->
+  </head>
+  <body>
+    <audio id="notif" src="./audio/notification.mp3"></audio>
+    <div class="app">
+      <div class="chatbox">
+        <div class="nameSelector">
+          <h2>Dropper</h2>
+          <input id="nameset" type="text" spellcheck="false" autocomplete="off" placeholder="Type your username">
+        </div>
+        <div class="header">
+          <h4>Dropper Chat <span>(0 Online)</span></h4>
+        </div>
+        <div class="chatview">
+          <div class="messages">
+            <div class="mainScroll">
+              <div class="messageGroup me">
+                <div class="message">
+                  <p>Hola</p>
+                </div>
+                <div class="message">
+                  <p>Como estas? yo soy miguel y esto es un mesaje domie para ver como se puede utilizar.</p>
+                </div>
+              </div>
+              <div class="messageGroup other">
+                <div class="userPiture">
+                  <p class="username">Crawford.</p>
+                </div>
+                <div class="message">
+                  <p>Hi, this is a response.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="actionbox">
+          <input id="mainText" placeholder="Type a message" type="text" name="" value="">
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://raw.githack.com/denyncrawford/dropper/master/client-api/javascript/dropper.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/node-uuid@1.4.8/uuid.min.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <script src="https://momentjs.com/downloads/moment-with-locales.min.js" charset="utf-8"></script>
+  <script src="./js/main.js" charset="utf-8"></script>
+</html>
