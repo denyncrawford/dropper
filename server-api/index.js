@@ -3,13 +3,14 @@
 function Dropper(server) {
   function Instance(config) {
     var username = config.username,
-    app = config.appName,
+    name = config.appName,
     pass = config.password
     server = server || config.server,
     apiKey = config.apiKey,
     appRoute = config.appRoute || "/dropper",
     logs = config.logs || false,
-    secure = config.secure || false;
+    secure = config.secure || false,
+    perms = config.perms;
 
     if (appRoute[0] != "/") appRoute = "/"+ appRoute;
     if (!apiKey || apiKey.length == 0) {
@@ -19,6 +20,7 @@ function Dropper(server) {
 
     const events = require('events');
     const express = require('express');
+    const bodyParser = require('body-parser');
     const em = new events.EventEmitter();
     em.setMaxListeners(0)
     const uuid = require('uuid/v1');
@@ -33,48 +35,46 @@ function Dropper(server) {
     // Open Websocket connection
 
     var ids = [];
-    var gWs;
     var aWss = expressWs.getWss(appRoute);
     var clients = aWss.clients;
     var sign = false;
 
     server.use(cors());
+    server.use(bodyParser.json());
 
     server.get(appRoute, function(req, res, next) {
       var auth = req.get("Authorization");
+      var id = req.query.id;
       var checkProtocol = req.connection.encrypted;
+      if (!id) {
+        res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
+        em.emit("sign", sign)
+        return next();
+      }
       if (secure && !checkProtocol) {
-        gWs.close(1002, "Not Secure.")
+        aWss.clients.forEach((client) => {
+          if (client.id == id) client.close(1002, "Not Secure.")
+        });
         res.send(JSON.stringify({message:"Set the the secure option to false to allow not seccure connections.",bool:false}))
         return next();
       }
       if (auth != apiKey) {
-        gWs.close(4001, "Unauthorized");
+        aWss.clients.forEach((client) => {
+          if (client.id == id) client.close(4001, "Unauthorized");
+        });
         res.send(JSON.stringify({message:"Wrong auth credentials.",bool:false}))
-        em.emit("sign", sign)
+        em.emit("sign", sign, id)
       }else {
         sign = true;
-        em.emit("sign", sign)
+        em.emit("sign", sign, id)
         res.send(JSON.stringify({message:"Success connection.",bool:true}));
       }
     });
 
     server.ws(appRoute, function(ws, req) {
-      gWs = ws;
-      ws.id = uuid();
+      ws.id = req.query.id;
       var refID = ws.id;
       ids.push(refID);
-      var i = 0;
-      em.emit("connection", {id:ws.id});
-      var dropper_connection = {event:"connection", message:{id:refID,all:ids}};
-      aWss.clients.forEach((client) => {
-        client.send(JSON.stringify(dropper_connection));
-      });
-      em.on("sign", function(sign) {
-        if (!sign) {
-          ws.close(4001, "Unauthorized");
-        }
-      });
       ws.on('message', function(msg) {
         var pre = msg;
         if (isJson(msg)) {
@@ -87,18 +87,26 @@ function Dropper(server) {
         }
       });
       ws.on("close", function() {
+        var id = ws.id;
         for (var i = 0; i < ids.length; i++) {
-          if (ids[i] == ws.id) ids.splice(i,1);
-          break;
+          if (ids[i] == id) {ids = ids.splice(i,1); break;}
         }
-        em.emit("disconnection", {id:ws.id});
-        var dropper_disconnection = {event:"disconnection", message:{id:ws.id,all:ids}};
-        aWss.clients.forEach((client) => {
-          client.send(JSON.stringify(dropper_disconnection));
-        });
+        em.emit("d-disconnection", {id:id, all:ids});
         em.emit("close", ws);
       })
     });
+
+    aWss.on("connection", (ws) => {
+      em.emit("d-connection", {id:ws.id, all:ids});
+    })
+
+    em.on("sign", (data, id) => {
+      if (!data && id) {
+        aWss.clients.forEach((client) => {
+          if (id == client.id) client.close();
+        })
+      }
+    })
 
     // Find User/Instance
 
@@ -144,8 +152,8 @@ function Dropper(server) {
 
     server.get(clientRoute, function(req, res) {
       res.send(index({
-        title: "Dropper Web Console - " + app,
-        appname: app
+        title: "Dropper Web Console - " + name,
+        appname: name
       }))
     });
 
@@ -153,12 +161,20 @@ function Dropper(server) {
 
     this.client = function(clientID) {
       if (typeof clientID == "undefined") return "No conection detected, please execute this on events methods."
-      return gWs
+      aWss.clients.forEach((client) => {
+        if (client.id == clientID) {
+          return client;
+        }
+      })
     }
 
     this.client.id = function() {
-      if (typeof gWs == "undefined") return "No conection detected, please execute this on events methods."
-      return gWs.id
+      if (aWss.clients.length <= 0) return "No conection detected, please execute this on events methods."
+      aWss.clients.forEach((client) => {
+        if (client.id == clientID) {
+          return client.id;
+        }
+      })
     };
 
     this.clients = aWss.clients;
@@ -181,14 +197,23 @@ function Dropper(server) {
       }
     }
 
-    this.close = function(c,r) {
+    this.close = function(c,r,id) {
       var code = c || 1000;
       var reason = r || "";
-      gWs.close(code, reason)
+      if (!id) {
+        aWss.clients.forEach((client) => {
+          client.close();
+        })
+      }else {
+        aWss.clients.forEach((client) => {
+          if (client.id == id) {
+            client.close();
+          }
+        })
+      }
     }
 
     this.client.emit = function(clientID, evt, data) {
-      if (typeof gWs == "undefined") return
       if (typeof clientID == "undefined") return "Please, introduce a ClientID to send the event."
 
       if (typeof data == "undefined") {
@@ -212,13 +237,21 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
-        case "connection":
-          em.on("connection", function(msg) {
+        case "dropper:connection":
+          em.on("d-connection", function(msg) {
+            var model = {event:"dropper:connection", message:msg};
+            aWss.clients.forEach((client) => {
+              client.send(JSON.stringify(model));
+            });
             return cb(msg)
           });
           break;
-        case "disconnection":
-          em.on("disconnection", function(msg) {
+        case "dropper:disconnection":
+          em.on("d-disconnection", function(msg) {
+            var model = {event:"dropper:disconnection", message:msg};
+            aWss.clients.forEach((client) => {
+              client.send(JSON.stringify(model));
+            });
             return cb(msg)
           });
           break;
@@ -274,7 +307,6 @@ function Dropper(server) {
     }
 
     this.trigger = function(channel, evt, data) {
-      if (typeof gWs == "undefined") return
       if (typeof channel == "undefined") return console.log("Please provide a channel to use the trigger method.");
       if (typeof data == "undefined") {
         data = evt;

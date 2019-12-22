@@ -22,7 +22,9 @@ function Dropper(config) {
     return;
   }
 
-  var ws = new WebSocket(wsProtocol+domain+path);
+  var connectionID = uuid();
+  var connectionQuery = "?id="+connectionID;
+  var ws = new WebSocket(wsProtocol+domain+path+connectionQuery);
 
   var em = new EventEmitter();
   var prevClosing;
@@ -32,7 +34,7 @@ function Dropper(config) {
 
   // Handshake
 
-  fetch(protocol+domain+path, {
+  fetch(protocol+domain+path+connectionQuery, {
     method: "GET",
     mode: "cors",
     headers: {
@@ -66,7 +68,7 @@ function Dropper(config) {
   }
 
   var onopen = function (res){
-    em.emit("connect", {status:true,message:"Connection stabilized"})
+    em.emit("connect", {id: connectionID, status:true, message:"Connection stabilized"})
     var loginCheck = setInterval(() => {
       if (logged == true) {
         em.emit("open", res.data);
@@ -97,7 +99,7 @@ function Dropper(config) {
       ws = null;
       var srt = setInterval(() => {
         if (navigator.onLine && isCLosed && logged) {
-          ws = new WebSocket(wsProtocol+domain+path);
+          ws = new WebSocket(wsProtocol+domain+path+connectionQuery);
           ws.onmessage = onmessage;
           ws.onopen = onopen;
           ws.onclose = onclose;
@@ -292,3 +294,21 @@ EventEmitter.prototype.once = function (event, listener) {
         listener.apply(this, arguments);
     });
 };
+
+//uuid.V1 Polyfill
+
+function uuid() { // Public Domain/MIT
+    var d = new Date().getTime();//Timestamp
+    var d2 = (performance && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16;//random number between 0 and 16
+        if(d > 0){//Use timestamp until depleted
+            r = (d + r)%16 | 0;
+            d = Math.floor(d/16);
+        } else {//Use microseconds since page-load if supported
+            r = (d2 + r)%16 | 0;
+            d2 = Math.floor(d2/16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}

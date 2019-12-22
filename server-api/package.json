@@ -1,6 +1,6 @@
 {
   "name": "dropperjs",
-  "version": "0.0.29",
+  "version": "0.1.0",
   "description": "Real-time data pusher",
   "main": "index.js",
   "scripts": {
@@ -20,8 +20,8 @@
   "author": "Denyn Crawford",
   "license": "MIT",
   "dependencies": {
-    "aes4js": "^1.0.0",
     "express-ws": "^4.0.0",
+    "ip": "^1.1.5",
     "nedb": "^1.8.0",
     "pug": "^2.0.4",
     "uuid": "^3.3.3",
