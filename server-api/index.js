@@ -25,6 +25,7 @@ function Dropper(server) {
     em.setMaxListeners(0)
     const uuid = require('uuid/v1');
     const fs = require('fs');
+	const ip = require("ip")
     const pug = require('pug');
     const cors = require('cors');
     //const Datastore = require('nedb');
