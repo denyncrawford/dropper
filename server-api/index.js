@@ -4,13 +4,13 @@ function Dropper(server) {
   function Instance(config) {
     var username = config.username,
     name = config.appName,
-    pass = config.password
-    server = server || config.server,
+    pass = config.password,
+    connection = config.connect || {},
     apiKey = config.apiKey,
-    appRoute = config.appRoute || "/dropper",
+    appRoute = connection.appRoute || "/dropper",
     logs = config.logs || false,
-    secure = config.secure || false,
-    perms = config.perms;
+    secure = connection.secure || false,
+    perms = connection.perms;
 
     if (appRoute[0] != "/") appRoute = "/"+ appRoute;
     if (!apiKey || apiKey.length == 0) {
@@ -25,7 +25,7 @@ function Dropper(server) {
     em.setMaxListeners(0)
     const uuid = require('uuid/v1');
     const fs = require('fs');
-	const ip = require("ip")
+	  const ip = require("ip")
     const pug = require('pug');
     const cors = require('cors');
     //const Datastore = require('nedb');
@@ -44,6 +44,7 @@ function Dropper(server) {
     server.use(bodyParser.json());
 
     server.get(appRoute, function(req, res, next) {
+      console.log(req.hostname);
       var auth = req.get("Authorization");
       var id = req.query.id;
       var checkProtocol = req.connection.encrypted;
@@ -92,13 +93,23 @@ function Dropper(server) {
         for (var i = 0; i < ids.length; i++) {
           if (ids[i] == id) {ids = ids.splice(i,1); break;}
         }
-        em.emit("d-disconnection", {id:id, all:ids});
+        var msg = {id:id, all:ids};
+        em.emit("d-disconnection", msg);
+        var model = {event:"dropper_disconnection", message:msg};
+        aWss.clients.forEach((client) => {
+          client.send(JSON.stringify(model));
+        });
         em.emit("close", ws);
       })
     });
 
     aWss.on("connection", (ws) => {
-      em.emit("d-connection", {id:ws.id, all:ids});
+      var msg = {id:ws.id, all:ids}
+      em.emit("d-connection", msg);
+      var model = {event:"dropper_connection", message:msg};
+      aWss.clients.forEach((client) => {
+        client.send(JSON.stringify(model));
+      });
     })
 
     em.on("sign", (data, id) => {
@@ -238,21 +249,13 @@ function Dropper(server) {
 
     this.on = function(evt, cb) {
       switch (evt) {
-        case "dropper:connection":
+        case "dropper_connection":
           em.on("d-connection", function(msg) {
-            var model = {event:"dropper:connection", message:msg};
-            aWss.clients.forEach((client) => {
-              client.send(JSON.stringify(model));
-            });
             return cb(msg)
           });
           break;
-        case "dropper:disconnection":
+        case "dropper_disconnection":
           em.on("d-disconnection", function(msg) {
-            var model = {event:"dropper:disconnection", message:msg};
-            aWss.clients.forEach((client) => {
-              client.send(JSON.stringify(model));
-            });
             return cb(msg)
           });
           break;

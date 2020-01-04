@@ -1,6 +1,6 @@
 {
   "name": "dropperjs",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Real-time data pusher",
   "main": "index.js",
   "scripts": {
@@ -21,15 +21,15 @@
   "license": "MIT",
   "dependencies": {
     "express-ws": "^4.0.0",
+    "body-parser": "^1.19.0",
     "ip": "^1.1.5",
     "nedb": "^1.8.0",
     "pug": "^2.0.4",
     "uuid": "^3.3.3",
-    "xterm": "^3.14.5"
+    "xterm": "^3.14.5",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
     "express": "^4.17.1"
   }
 }
